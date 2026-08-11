@@ -31,7 +31,7 @@ import {
   type Product,
 } from "@/lib/bakery-data";
 import heroCake from "@/assets/hero-cake.jpg";
-import storefront from "@/assets/storefront.png.asset.json";
+import storefront from "@/assets/storefront.png";
 import { Eyebrow, Logo, Magnetic, MaskedHeading, Particles, Reveal } from "./ui-bits";
 
 /* ------------------------------- HERO ------------------------------- */
@@ -478,7 +478,7 @@ export function About() {
         <Reveal>
           <div className="relative">
             <img
-              src={storefront.url}
+              src={storefront}
               alt="Nutty Delight Bakery storefront lit up at night with outdoor seating"
               loading="lazy"
               width={1600}

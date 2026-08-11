@@ -1,9 +1,9 @@
 import { motion, useInView, useMotionValue, useSpring } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import logo from "@/assets/logo.asset.json";
+import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
 
-export const logoUrl = logo.url;
+export const logoUrl = logo;
 
 export function Logo({ className }: { className?: string }) {
   return (
