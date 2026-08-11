@@ -1,0 +1,289 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Nutty Delight Bakery — luxury burgundy / cream / gold design system.
+ * All colors are oklch semantic tokens. Never hardcode colors in components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 14px);
+  --radius-3xl: calc(var(--radius) + 24px);
+  --radius-4xl: calc(var(--radius) + 40px);
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-rose-gold: var(--rose-gold);
+  --color-espresso: var(--espresso);
+  --color-cream: var(--cream);
+  --color-peach: var(--peach);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 1rem;
+
+  --cream: oklch(0.98 0.016 73.7);
+  --peach: oklch(0.955 0.03 60);
+  --espresso: oklch(0.279 0.044 39.8);
+  --gold: oklch(0.714 0.096 75.1);
+  --gold-soft: oklch(0.89 0.055 80);
+  --rose-gold: oklch(0.8 0.06 40);
+
+  --background: oklch(0.992 0.007 80.7);
+  --foreground: oklch(0.279 0.044 39.8);
+  --card: oklch(0.996 0.006 80);
+  --card-foreground: oklch(0.279 0.044 39.8);
+  --popover: oklch(0.996 0.006 80);
+  --popover-foreground: oklch(0.279 0.044 39.8);
+  --primary: oklch(0.422 0.143 18.8);
+  --primary-foreground: oklch(0.98 0.016 73.7);
+  --secondary: oklch(0.513 0.173 20.3);
+  --secondary-foreground: oklch(0.992 0.007 80.7);
+  --muted: oklch(0.965 0.012 76);
+  --muted-foreground: oklch(0.52 0.04 50);
+  --accent: oklch(0.98 0.016 73.7);
+  --accent-foreground: oklch(0.279 0.044 39.8);
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: oklch(0.98 0.01 84);
+  --border: oklch(0.91 0.018 74);
+  --input: oklch(0.91 0.018 74);
+  --ring: oklch(0.714 0.096 75.1);
+  --sidebar: oklch(0.975 0.012 78);
+  --sidebar-foreground: oklch(0.279 0.044 39.8);
+  --sidebar-primary: oklch(0.422 0.143 18.8);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.7);
+  --sidebar-accent: oklch(0.955 0.02 70);
+  --sidebar-accent-foreground: oklch(0.279 0.044 39.8);
+  --sidebar-border: oklch(0.91 0.018 74);
+  --sidebar-ring: oklch(0.714 0.096 75.1);
+
+  --gradient-warm: linear-gradient(
+    135deg,
+    oklch(0.99 0.008 80) 0%,
+    oklch(0.955 0.03 60) 55%,
+    oklch(0.98 0.016 73.7) 100%
+  );
+  --gradient-cocoa: linear-gradient(140deg, oklch(0.422 0.143 18.8), oklch(0.279 0.044 39.8));
+  --gradient-gold: linear-gradient(100deg, oklch(0.86 0.09 88), oklch(0.714 0.096 75.1), oklch(0.88 0.07 60));
+  --shadow-soft: 0 24px 60px -28px oklch(0.422 0.14 18.8 / 0.35);
+  --shadow-lift: 0 40px 90px -34px oklch(0.422 0.15 18.8 / 0.45);
+  --shadow-gold: 0 0 0 1px oklch(0.714 0.096 75.1 / 0.35), 0 30px 70px -32px oklch(0.714 0.096 75.1 / 0.55);
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  --background: oklch(0.22 0.045 22);
+  --foreground: oklch(0.95 0.014 73.7);
+  --card: oklch(0.26 0.05 22);
+  --card-foreground: oklch(0.95 0.014 73.7);
+  --popover: oklch(0.26 0.05 22);
+  --popover-foreground: oklch(0.95 0.014 73.7);
+  --primary: oklch(0.513 0.173 20.3);
+  --primary-foreground: oklch(0.992 0.007 80.7);
+  --secondary: oklch(0.34 0.08 22);
+  --secondary-foreground: oklch(0.95 0.014 73.7);
+  --muted: oklch(0.3 0.055 22);
+  --muted-foreground: oklch(0.78 0.03 66);
+  --accent: oklch(0.38 0.1 22);
+  --accent-foreground: oklch(0.95 0.014 73.7);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.714 0.096 75.1);
+  --gradient-warm: linear-gradient(135deg, oklch(0.25 0.05 22), oklch(0.2 0.04 20));
+  --shadow-soft: 0 24px 60px -28px oklch(0 0 0 / 0.6);
+  --shadow-lift: 0 40px 90px -34px oklch(0 0 0 / 0.7);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--espresso);
+  }
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--card) 62%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--gold) 28%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+@utility glass-dark {
+  background: color-mix(in oklab, var(--espresso) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+}
+
+@utility warm-surface {
+  background-image: var(--gradient-warm);
+}
+
+@utility cocoa-surface {
+  background-image: var(--gradient-cocoa);
+}
+
+@utility gold-text {
+  background-image: var(--gradient-gold);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+@utility shadow-gold {
+  box-shadow: var(--shadow-gold);
+}
+
+@utility silk {
+  transition-timing-function: var(--ease-silk);
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -18px, 0) rotate(4deg);
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(40px, -120vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes slow-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+@utility animate-float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+@utility animate-drift {
+  animation: drift linear infinite;
+}
+
+@utility animate-marquee {
+  animation: marquee 42s linear infinite;
+}
+
+@utility animate-slow-zoom {
+  animation: slow-zoom 22s ease-out forwards;
+}
+
+@utility shimmer-gold {
+  background-image: var(--gradient-gold);
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
