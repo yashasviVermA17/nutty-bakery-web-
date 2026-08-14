@@ -31,6 +31,7 @@ const REELS = [
 
 const WHEEL_STEP_PX = 60;
 const WHEEL_COOLDOWN_MS = 500;
+const AUTO_PLAY_MS = 4000;
 
 function permalink(url: string) {
   return `${url}?utm_source=ig_embed&utm_campaign=loading`;
@@ -330,6 +331,18 @@ export function ReelsCarousel() {
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
   }, [stepWheel]);
+
+  useEffect(() => {
+    if (!ready) return undefined;
+    const id = window.setInterval(() => {
+      if (hoveredRef.current || dragRef.current.active) return;
+      setIndex((i) => {
+        const max = REELS.length - perViewRef.current;
+        return i >= max ? 0 : i + 1;
+      });
+    }, AUTO_PLAY_MS);
+    return () => window.clearInterval(id);
+  }, [ready]);
 
   const onWheelCapture = useCallback(
     (e: React.WheelEvent) => stepWheel(e.nativeEvent),
