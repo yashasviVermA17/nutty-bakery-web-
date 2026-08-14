@@ -20,7 +20,6 @@ import {
   X,
 } from "lucide-react";
 import {
-  bestSellers,
   categories,
   gallery,
   instagramGrid,
@@ -33,6 +32,7 @@ import {
 import heroCake from "@/assets/hero-cake.jpg";
 import storefront from "@/assets/storefront.png";
 import { Eyebrow, Logo, Magnetic, MaskedHeading, Particles, Reveal } from "./ui-bits";
+import { ReelsCarousel } from "./instagram-reels";
 
 /* ------------------------------- HERO ------------------------------- */
 
@@ -404,28 +404,6 @@ export function Menu() {
 /* --------------------------- BEST SELLERS --------------------------- */
 
 export function BestSellers() {
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    let paused = false;
-    const enter = () => (paused = true);
-    const leave = () => (paused = false);
-    el.addEventListener("mouseenter", enter);
-    el.addEventListener("mouseleave", leave);
-    const id = window.setInterval(() => {
-      if (paused) return;
-      const max = el.scrollWidth - el.clientWidth;
-      el.scrollLeft = el.scrollLeft >= max - 4 ? 0 : el.scrollLeft + 1.2;
-    }, 22);
-    return () => {
-      window.clearInterval(id);
-      el.removeEventListener("mouseenter", enter);
-      el.removeEventListener("mouseleave", leave);
-    };
-  }, []);
-
   return (
     <section className="relative overflow-hidden cocoa-surface py-24 md:py-32">
       <Particles count={20} tone="gold" />
@@ -433,38 +411,9 @@ export function BestSellers() {
         <Eyebrow>Most loved</Eyebrow>
         <MaskedHeading text="This week's best sellers" className="mt-5 text-4xl text-cream md:text-6xl" />
       </div>
-
-      <div
-        ref={trackRef}
-        className="mt-12 flex gap-8 overflow-x-auto px-6 pb-4 md:px-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {[...bestSellers, ...bestSellers].map((p, i) => (
-          <Link
-            to="/menu"
-            search={{ category: slugify(p.category) }}
-            key={`${p.name}-${i}`}
-            className="group relative block w-72 shrink-0 overflow-hidden rounded-[2rem] glass-dark p-3 transition-all duration-500 hover:-translate-y-2 hover:shadow-gold"
-          >
-            <div className="overflow-hidden rounded-[1.4rem]">
-              <img
-                src={p.image}
-                alt={p.name}
-                loading="lazy"
-                width={900}
-                height={1100}
-                className="h-64 w-full object-cover transition-transform duration-[1.2s] group-hover:scale-115"
-              />
-            </div>
-            <div className="px-3 py-4">
-              <h3 className="font-display text-lg text-cream">{p.name}</h3>
-              <div className="mt-1 flex items-center justify-between text-sm text-cream/60">
-                <span>{p.category}</span>
-                <span className="text-gold">{p.price}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <Reveal className="mt-12">
+        <ReelsCarousel />
+      </Reveal>
     </section>
   );
 }

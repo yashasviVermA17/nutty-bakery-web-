@@ -287,3 +287,42 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+.reel-embed {
+  position: relative;
+  width: 100%;
+}
+
+.reel-embed iframe {
+  width: 100% !important;
+  display: block;
+}
+
+.reel-embed blockquote.instagram-media {
+  margin: 0 auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  border-radius: 1.2rem;
+  overflow: hidden;
+}
+
+.reel-shimmer {
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.05) 70%
+  );
+  background-size: 200% 100%;
+  animation: reel-shimmer 1.8s linear infinite;
+}
+
+@keyframes reel-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
