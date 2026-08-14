@@ -1,5 +1,6 @@
-import { memo, useEffect, useRef, useState } from "react";
-import { Play } from "lucide-react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { Eyebrow, MaskedHeading, Reveal } from "./ui-bits";
 
 declare global {
   interface Window {
@@ -29,6 +30,9 @@ const REELS = [
   "https://www.instagram.com/reel/DIMjLXTTbDv/",
 ];
 
+const WHEEL_STEP_PX = 60;
+const WHEEL_COOLDOWN_MS = 500;
+
 function permalink(url: string) {
   return `${url}?utm_source=ig_embed&utm_campaign=loading`;
 }
@@ -51,12 +55,29 @@ function loadInstagramEmbedScript() {
   document.body.appendChild(script);
 }
 
+function processEmbeds() {
+  let tries = 0;
+  const interval = window.setInterval(() => {
+    tries += 1;
+    if (window.instgrm && window.instgrm.Embeds) {
+      window.clearInterval(interval);
+      try {
+        window.instgrm.Embeds.process();
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+    if (tries > 200) window.clearInterval(interval);
+  }, 100);
+}
+
 function ReelSkeleton() {
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[1.2rem] bg-primary/20">
+    <div className="relative h-full w-full overflow-hidden rounded-[1rem] bg-cream">
       <div className="reel-shimmer absolute inset-0" aria-hidden="true" />
       <div className="absolute inset-0 grid place-items-center">
-        <span className="grid h-14 w-14 place-items-center rounded-full bg-gold/90 text-primary shadow-gold">
+        <span className="grid h-14 w-14 place-items-center rounded-full bg-white/80 text-primary shadow-soft backdrop-blur-sm">
           <Play className="h-6 w-6" aria-hidden="true" />
         </span>
       </div>
@@ -65,12 +86,24 @@ function ReelSkeleton() {
 }
 
 const StaticEmbed = memo(function StaticEmbed({ html }: { html: string }) {
-  return <div className="reel-embed w-full" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div className="reel-embed h-full w-full" dangerouslySetInnerHTML={{ __html: html }} />;
 });
 
-function ReelEmbed({ url, html }: { url: string; html: string }) {
+function ReelEmbed({
+  url,
+  html,
+  onWheelCapture,
+}: {
+  url: string;
+  html: string;
+  onWheelCapture: (e: React.WheelEvent) => void;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [stalled, setStalled] = useState(false);
+
+  useEffect(() => {
+    processEmbeds();
+  }, [html]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -89,22 +122,31 @@ function ReelEmbed({ url, html }: { url: string; html: string }) {
     return () => window.clearTimeout(timer);
   }, [html]);
 
+  const stop = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    onWheelCapture(e);
+  };
+
   return (
-    <div className="relative">
-      <div ref={rootRef}>
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1rem] bg-white">
+      <div ref={rootRef} className="h-full w-full">
         <StaticEmbed html={html} />
       </div>
+      <div className="absolute inset-x-0 top-0 z-10 h-16" onWheel={stop} />
+      <div className="absolute inset-x-0 bottom-0 z-10 h-16" onWheel={stop} />
+      <div className="absolute inset-y-0 left-0 z-10 w-10" onWheel={stop} />
+      <div className="absolute inset-y-0 right-0 z-10 w-10" onWheel={stop} />
       {stalled && (
         <button
           type="button"
           onClick={() => window.open(permalink(url), "_blank", "noopener")}
           aria-label="View reel on Instagram"
-          className="absolute inset-0 z-10 grid place-items-center bg-espresso/60 transition-colors duration-300 hover:bg-espresso/70"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-espresso/60 backdrop-blur-sm transition-colors duration-300 hover:bg-espresso/70"
         >
-          <span className="grid h-14 w-14 place-items-center rounded-full bg-gold/95 text-primary shadow-gold">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-white/90 text-primary shadow-soft">
             <Play className="h-6 w-6" aria-hidden="true" />
           </span>
-          <span className="mt-3 block text-sm font-medium tracking-wide text-cream">
+          <span className="text-sm font-medium tracking-wide text-white">
             View on Instagram
           </span>
         </button>
@@ -113,7 +155,15 @@ function ReelEmbed({ url, html }: { url: string; html: string }) {
   );
 }
 
-function ReelCard({ url, active }: { url: string; active: boolean }) {
+function ReelCard({
+  url,
+  active,
+  onWheelCapture,
+}: {
+  url: string;
+  active: boolean;
+  onWheelCapture: (e: React.WheelEvent) => void;
+}) {
   const [embedHtml, setEmbedHtml] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,16 +176,22 @@ function ReelCard({ url, active }: { url: string; active: boolean }) {
       return false;
     };
     if (tryInject()) return undefined;
+    let tries = 0;
     const interval = window.setInterval(() => {
-      if (tryInject()) clearInterval(interval);
-    }, 150);
+      tries += 1;
+      if (tryInject()) {
+        clearInterval(interval);
+      } else if (tries > 200) {
+        clearInterval(interval);
+      }
+    }, 100);
     return () => clearInterval(interval);
   }, [active, embedHtml, url]);
 
   return (
-    <div className="reel-card relative h-full w-full overflow-hidden rounded-[1.5rem] border border-gold/15 bg-white/[0.05] p-2 shadow-soft">
+    <div className="reel-card h-full w-full overflow-hidden rounded-2xl border border-black/10 bg-white p-1.5 shadow-soft">
       {embedHtml ? (
-        <ReelEmbed url={url} html={embedHtml} />
+        <ReelEmbed url={url} html={embedHtml} onWheelCapture={onWheelCapture} />
       ) : (
         <div className="aspect-[4/5] w-full">
           <ReelSkeleton />
@@ -145,10 +201,31 @@ function ReelCard({ url, active }: { url: string; active: boolean }) {
   );
 }
 
-export function ReelsCarousel() {
-  const sectionRef = useRef<HTMLDivElement>(null);
+export function InstagramReels() {
+  const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
   const [ready, setReady] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [perView, setPerView] = useState(3);
+  const [viewportW, setViewportW] = useState(0);
+  const [dragPos, setDragPos] = useState<number | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const indexRef = useRef(0);
+  const perViewRef = useRef(perView);
+  const hoveredRef = useRef(false);
+  const wheelRef = useRef({ acc: 0, cooldown: 0 });
+  const dragRef = useRef({ active: false, dragging: false, startX: 0, startPos: 0 });
+  const dragPosRef = useRef(0);
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+  useEffect(() => {
+    perViewRef.current = perView;
+  }, [perView]);
 
   useEffect(() => {
     loadInstagramEmbedScript();
@@ -176,126 +253,201 @@ export function ReelsCarousel() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!ready) return undefined;
-    let tries = 0;
-    const interval = window.setInterval(() => {
-      tries += 1;
-      if (window.instgrm && window.instgrm.Embeds) {
-        window.clearInterval(interval);
-        window.setTimeout(() => {
-          try {
-            window.instgrm?.Embeds?.process();
-          } catch {
-            /* ignore */
-          }
-        }, 80);
-        return;
-      }
-      if (tries > 200) window.clearInterval(interval);
-    }, 100);
-    return () => window.clearInterval(interval);
-  }, [ready]);
-
-  const drag = useRef({ active: false, dragging: false, startX: 0, startY: 0, scrollLeft: 0 });
-  const [dragging, setDragging] = useState(false);
-  const wheelState = useRef({ target: 0, raf: 0 });
-
-  const handleWheel = (e: React.WheelEvent) => {
-    const el = trackRef.current;
-    if (!el || drag.current.active) return;
-    e.preventDefault();
-    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    const s = wheelState.current;
-    s.target += delta;
-    if (!s.raf) {
-      const step = () => {
-        const t = trackRef.current;
-        if (!t) return;
-        const diff = s.target - t.scrollLeft;
-        if (Math.abs(diff) < 0.5) {
-          s.raf = 0;
-          return;
-        }
-        t.scrollLeft += diff * 0.25;
-        s.raf = window.requestAnimationFrame(step);
-      };
-      s.raf = window.requestAnimationFrame(step);
-    }
-  };
-
-  useEffect(() => {
-    const el = trackRef.current;
+  useLayoutEffect(() => {
+    const el = viewportRef.current;
     if (!el) return undefined;
-    el.addEventListener("wheel", handleWheel as unknown as EventListener, { passive: false });
-    return () => {
-      el.removeEventListener("wheel", handleWheel as unknown as EventListener);
-      if (wheelState.current.raf) window.cancelAnimationFrame(wheelState.current.raf);
+    const update = () => {
+      const w = el.clientWidth;
+      const pv = w < 640 ? 1 : w < 1024 ? 2 : 3;
+      setPerView(pv);
+      setViewportW(w);
+      setIndex((i) => Math.min(i, REELS.length - pv));
     };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
+  const step = perView > 0 ? viewportW / perView : 0;
+  const maxIndex = Math.max(0, REELS.length - perView);
+  const maxScroll = maxIndex * step;
+  const pos =
+    dragPos !== null
+      ? Math.min(Math.max(dragPos, 0), maxScroll)
+      : Math.min(index * step, maxScroll);
+
+  const goBy = useCallback((delta: number) => {
+    setIndex((i) => Math.min(Math.max(i + delta, 0), REELS.length - perViewRef.current));
+  }, []);
+
+  const goTo = useCallback((target: number) => {
+    setIndex(Math.min(Math.max(target, 0), REELS.length - perViewRef.current));
+  }, []);
+
+  const stepWheel = useCallback(
+    (e: WheelEvent) => {
+      const el = viewportRef.current;
+      if (!el || !hoveredRef.current) return;
+      const now = Date.now();
+      if (now < wheelRef.current.cooldown) {
+        e.preventDefault();
+        return;
+      }
+
+      let delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 16;
+      else if (e.deltaMode === 2) delta *= el.clientHeight;
+      if (Math.abs(delta) < 8) return;
+
+      const goingUp = delta < 0;
+      const atTop = indexRef.current <= 0;
+      const atEnd = indexRef.current >= REELS.length - perViewRef.current;
+
+      if ((atTop && goingUp) || (atEnd && !goingUp)) {
+        wheelRef.current.acc = 0;
+        return;
+      }
+
+      e.preventDefault();
+      wheelRef.current.acc += delta;
+      if (wheelRef.current.acc >= WHEEL_STEP_PX) {
+        wheelRef.current.acc = 0;
+        wheelRef.current.cooldown = now + WHEEL_COOLDOWN_MS;
+        goBy(1);
+      } else if (wheelRef.current.acc <= -WHEEL_STEP_PX) {
+        wheelRef.current.acc = 0;
+        wheelRef.current.cooldown = now + WHEEL_COOLDOWN_MS;
+        goBy(-1);
+      }
+    },
+    [goBy],
+  );
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return undefined;
+    const onWheel = (e: WheelEvent) => stepWheel(e);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [stepWheel]);
+
+  const onWheelCapture = useCallback(
+    (e: React.WheelEvent) => stepWheel(e.nativeEvent),
+    [stepWheel],
+  );
+
   const onPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === "touch") return;
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    const el = trackRef.current;
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    const el = viewportRef.current;
     if (!el) return;
-    const s = wheelState.current;
-    if (s.raf) window.cancelAnimationFrame(s.raf);
-    s.raf = 0;
-    s.target = el.scrollLeft;
-    drag.current.active = true;
-    drag.current.dragging = false;
-    drag.current.startX = e.clientX;
-    drag.current.startY = e.clientY;
-    drag.current.scrollLeft = el.scrollLeft;
+    dragRef.current.active = true;
+    dragRef.current.dragging = false;
+    dragRef.current.startX = e.clientX;
+    dragRef.current.startPos = indexRef.current * step;
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    const d = drag.current;
-    const el = trackRef.current;
-    if (!d.active || !el) return;
+    const d = dragRef.current;
+    if (!d.active) return;
     const dx = e.clientX - d.startX;
-    const dy = e.clientY - d.startY;
     if (!d.dragging) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dx) < 8) return;
       d.dragging = true;
       setDragging(true);
       try {
-        el.setPointerCapture(e.pointerId);
+        viewportRef.current?.setPointerCapture(e.pointerId);
       } catch {
         /* ignore */
       }
     }
-    el.scrollLeft = d.scrollLeft - dx;
+    dragPosRef.current = d.startPos - dx;
+    setDragPos(dragPosRef.current);
   };
 
   const endDrag = () => {
-    if (!drag.current.active) return;
-    drag.current.active = false;
-    if (drag.current.dragging) {
-      drag.current.dragging = false;
+    const d = dragRef.current;
+    if (!d.active) return;
+    d.active = false;
+    if (d.dragging) {
+      d.dragging = false;
       setDragging(false);
+      const target = Math.round(dragPosRef.current / step);
+      goTo(target);
+      setDragPos(null);
     }
   };
 
   return (
-    <div ref={sectionRef} className="relative">
-      <div
-        ref={trackRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        className={`reel-scroll -mx-6 flex cursor-grab select-none items-stretch overflow-x-auto px-6 active:cursor-grabbing md:-mx-12 md:px-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden${
-          dragging ? "" : " snap-x snap-mandatory"
-        }`}
-      >
-        {REELS.map((url) => (
-          <div key={url} className="reel-slide w-full shrink-0 snap-start pr-6 sm:w-1/2 sm:pr-6 md:pr-12 lg:w-1/3">
-            <ReelCard url={url} active={ready} />
+    <section ref={sectionRef} className="bg-cream/70 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6 md:px-12">
+        <div className="text-center">
+          <Eyebrow>Instagram Reels</Eyebrow>
+          <MaskedHeading
+            text="See It. Feel It. Love It."
+            className="mt-5 text-4xl text-primary md:text-5xl"
+          />
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Fresh bakes, behind-the-scenes and little moments from our kitchen.
+          </p>
+        </div>
+
+        <Reveal className="mt-12">
+          <div
+            ref={viewportRef}
+            className="cursor-grab overflow-hidden active:cursor-grabbing"
+            onMouseEnter={() => (hoveredRef.current = true)}
+            onMouseLeave={() => (hoveredRef.current = false)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+          >
+            <div
+              ref={trackRef}
+              className="flex items-stretch"
+              style={{
+                transform: `translate3d(${-pos}px, 0, 0)`,
+                transition: dragging
+                  ? "none"
+                  : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)",
+                willChange: "transform",
+              }}
+            >
+              {REELS.map((url) => (
+                <div
+                  key={url}
+                  className="shrink-0 pr-3 sm:pr-4 lg:pr-6"
+                  style={{ width: step || undefined }}
+                >
+                  <ReelCard url={url} active={ready} onWheelCapture={onWheelCapture} />
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => goBy(-1)}
+              disabled={index <= 0}
+              aria-label="Previous reels"
+              className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goBy(1)}
+              disabled={index >= maxIndex}
+              aria-label="Next reels"
+              className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </Reveal>
       </div>
-    </div>
+    </section>
   );
 }

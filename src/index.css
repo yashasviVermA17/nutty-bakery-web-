@@ -291,20 +291,30 @@
 .reel-embed {
   position: relative;
   width: 100%;
+  height: 100%;
 }
 
 .reel-embed iframe {
   width: 100% !important;
+  height: 100% !important;
+  transform: scale(1.4);
+  transform-origin: center center;
+  touch-action: pan-y;
   display: block;
+  border: 0;
+  background: #fff;
 }
 
 .reel-embed blockquote.instagram-media {
-  margin: 0 auto !important;
+  margin: 0 !important;
   min-width: 0 !important;
   max-width: 100% !important;
   width: 100% !important;
-  border-radius: 1.2rem;
+  height: 100% !important;
+  border: 0 !important;
+  border-radius: 0.75rem;
   overflow: hidden;
+  background: #fff;
 }
 
 .reel-shimmer {

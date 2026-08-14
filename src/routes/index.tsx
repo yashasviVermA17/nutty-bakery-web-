@@ -4,7 +4,6 @@ import {
   Marquee,
   Categories,
   Menu,
-  BestSellers,
   About,
   Gallery,
   Testimonials,
@@ -14,6 +13,7 @@ import {
   InstagramFeed,
   Contact,
 } from "../components/site/sections";
+import { InstagramReels } from "../components/site/instagram-reels";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -26,7 +26,6 @@ function HomePage() {
       <Marquee />
       <Categories />
       <Menu />
-      <BestSellers />
       <About />
       <Gallery />
       <Testimonials />
@@ -34,6 +33,7 @@ function HomePage() {
       <Process />
       <Offer />
       <InstagramFeed />
+      <InstagramReels />
       <Contact />
     </>
   );
