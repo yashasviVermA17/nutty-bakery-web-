@@ -3,6 +3,10 @@ dist
 .vercel
 *.local
 .DS_Store
-
-.vercel
 .env*
+
+.tanstack/tmp
+src/assets/*.htm
+src/assets/**/*.html
+src/assets/products/images.jpg
+src/assets/products/cup cake_files/

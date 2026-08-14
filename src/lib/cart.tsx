@@ -112,6 +112,20 @@ export function useCart() {
 function CartDrawer() {
   const { items, total, open, setOpen, remove, updateQty, clear } = useCart();
 
+  const waHref = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const lines = items.flatMap((c) => [
+      `${origin}/cake/${c.slug}`,
+      `Name: ${c.name}`,
+      `Quantity: ${c.qty}`,
+      `Weight: ${c.weight}`,
+      `Price: ${inr(c.price * c.qty)}`,
+      "",
+    ]);
+    const text = ["Hi Nutty Delight Bakery! I'd like to order:", "", ...lines, `Total: ${inr(total)}`].join("\n");
+    return `https://wa.me/918770941861?text=${encodeURIComponent(text)}`;
+  }, [items, total]);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="right" className="flex w-full flex-col gap-0 bg-background p-0 sm:max-w-md">
@@ -214,7 +228,7 @@ function CartDrawer() {
               Same-day delivery in Kanpur · no hidden charges
             </p>
             <a
-              href="https://wa.me/919000000000?text=Order%20for%20Nutty%20Delight%20Bakery"
+              href={waHref}
               target="_blank"
               rel="noreferrer"
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-full shimmer-gold px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-espresso"

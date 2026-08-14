@@ -31,7 +31,6 @@ const REELS = [
 
 const WHEEL_STEP_PX = 60;
 const WHEEL_COOLDOWN_MS = 500;
-const AUTO_PLAY_MS = 4000;
 
 function permalink(url: string) {
   return `${url}?utm_source=ig_embed&utm_campaign=loading`;
@@ -332,25 +331,13 @@ export function ReelsCarousel() {
     return () => el.removeEventListener("wheel", onWheel);
   }, [stepWheel]);
 
-  useEffect(() => {
-    if (!ready) return undefined;
-    const id = window.setInterval(() => {
-      if (hoveredRef.current || dragRef.current.active) return;
-      setIndex((i) => {
-        const max = REELS.length - perViewRef.current;
-        return i >= max ? 0 : i + 1;
-      });
-    }, AUTO_PLAY_MS);
-    return () => window.clearInterval(id);
-  }, [ready]);
-
   const onWheelCapture = useCallback(
     (e: React.WheelEvent) => stepWheel(e.nativeEvent),
     [stepWheel],
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     const el = viewportRef.current;
     if (!el) return;
     dragRef.current.active = true;
@@ -394,7 +381,7 @@ export function ReelsCarousel() {
     <div ref={sectionRef} className="relative">
       <div
         ref={viewportRef}
-        className="cursor-grab overflow-hidden active:cursor-grabbing"
+        className="cursor-grab touch-pan-y overflow-hidden active:cursor-grabbing"
         onMouseEnter={() => (hoveredRef.current = true)}
         onMouseLeave={() => (hoveredRef.current = false)}
         onPointerDown={onPointerDown}

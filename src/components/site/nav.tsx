@@ -1,9 +1,10 @@
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
-import { useEffect, useState } from "react";
-import { Menu, X, MessageCircle, Moon, Sun, ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { Menu, X, MessageCircle, ShoppingBag } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo, Magnetic, Instagram, Facebook } from "./ui-bits";
 import { useCart } from "@/lib/cart";
+import { useOrderNow } from "./order-now";
 
 function NavItem({
   href,
@@ -24,6 +25,27 @@ function NavItem({
       </Link>
     );
   }
+  if (href === "/about") {
+    return (
+      <Link to="/about" className={className} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  }
+  if (href === "/contact") {
+    return (
+      <Link to="/contact" className={className} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  }
+  if (href === "/") {
+    return (
+      <Link to="/" className={className} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  }
   if (pathname !== "/") {
     return (
       <Link to="/" hash={href.replace("#", "")} className={className} onClick={onClick}>
@@ -39,42 +61,26 @@ function NavItem({
 }
 
 const links = [
-  { label: "Home", href: "#home" },
+  { label: "Home", href: "/" },
   { label: "Menu", href: "/menu" },
-  { label: "Categories", href: "#categories" },
-  { label: "About", href: "#about" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [dark, setDark] = useState(false);
   const { count, setOpen: setCartOpen } = useCart();
+  const { setOpen: setOrderOpen } = useOrderNow();
   const { scrollY } = useScroll();
   const pad = useTransform(scrollY, [0, 200], [22, 10]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
 
   return (
     <>
       <motion.header
         style={{ paddingTop: pad, paddingBottom: pad }}
-        className={`fixed inset-x-0 top-0 z-50 px-5 transition-colors duration-500 md:px-10 ${
-          scrolled ? "glass" : "bg-transparent"
-        }`}
+        className="fixed inset-x-0 top-0 z-50 border-b border-gold/25 bg-background px-5 md:px-10"
       >
-        <nav className="mx-auto flex max-w-7xl items-center justify-between">
+        <nav className="flex items-center justify-between">
           <NavItem href="#home" className="flex items-center gap-3">
             <Logo className="h-12 w-12 rounded-full md:h-14 md:w-14" />
             <span className="hidden font-display text-lg leading-tight text-primary sm:block">
@@ -113,17 +119,9 @@ export function Navbar() {
                 </span>
               )}
             </button>
-            <button
-              type="button"
-              aria-label="Toggle dark mode"
-              onClick={() => setDark((d) => !d)}
-              className="grid h-10 w-10 place-items-center rounded-full border border-gold/40 text-primary transition-colors hover:bg-accent"
-            >
-              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
             <Magnetic
-              as="a"
-              href="/#contact"
+              as="button"
+              onClick={() => setOrderOpen(true)}
               className="hidden rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground shadow-soft transition-transform hover:scale-[1.03] md:inline-flex"
             >
               Order Now
@@ -178,13 +176,16 @@ export function Navbar() {
                 </motion.li>
               ))}
             </ul>
-            <NavItem
-              href="#contact"
-              onClick={() => setOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setOrderOpen(true);
+              }}
               className="mt-12 inline-flex rounded-full bg-primary px-8 py-4 text-xs uppercase tracking-[0.25em] text-primary-foreground"
             >
               Order Now
-            </NavItem>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -195,7 +196,7 @@ export function Navbar() {
 export function Footer() {
   return (
     <footer className="relative overflow-hidden cocoa-surface px-6 pb-10 pt-20 text-cream md:px-12">
-      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-4">
+      <div className="grid gap-12 md:grid-cols-3">
         <div className="md:col-span-2">
           <Logo className="h-20 w-20 rounded-full" />
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-cream/70">
@@ -206,7 +207,7 @@ export function Footer() {
             {[
               { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
               { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
-              { icon: MessageCircle, label: "WhatsApp", href: "https://wa.me/919000000000" },
+              { icon: MessageCircle, label: "WhatsApp", href: "https://wa.me/918770941861" },
             ].map(({ icon: Icon, label, href }) => (
               <a
                 key={label}
@@ -236,31 +237,9 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h3 className="font-display text-lg text-gold">Newsletter</h3>
-          <p className="mt-5 text-sm text-cream/70">Seasonal drops and limited edition cakes.</p>
-          <form
-            className="mt-4 flex overflow-hidden rounded-full border border-gold/30"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="email"
-              required
-              placeholder="you@email.com"
-              aria-label="Email address"
-              className="w-full bg-transparent px-4 py-3 text-sm text-cream placeholder:text-cream/40 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="shrink-0 shimmer-gold px-5 text-xs font-medium uppercase tracking-widest text-espresso"
-            >
-              Join
-            </button>
-          </form>
-        </div>
       </div>
 
-      <div className="mx-auto mt-14 flex max-w-7xl flex-col items-center justify-between gap-3 border-t border-gold/15 pt-6 text-xs text-cream/50 md:flex-row">
+      <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-gold/15 pt-6 text-xs text-cream/50 md:flex-row">
         <span>© {new Date().getFullYear()} Nutty Delight Bakery by Vithika. All rights reserved.</span>
         <span>Fall in love with every bite.</span>
       </div>

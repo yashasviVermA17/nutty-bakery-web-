@@ -20,15 +20,13 @@ import {
   X,
 } from "lucide-react";
 import {
-  categories,
-  gallery,
-  instagramGrid,
   process,
-  products,
   slugify,
   testimonials,
+  type GalleryItem,
   type Product,
 } from "@/lib/bakery-data";
+import { inr, menuItems, type MenuItem } from "@/lib/menu-data";
 import heroCake from "@/assets/hero-cake.jpg";
 import storefront from "@/assets/storefront.png";
 import { Eyebrow, Logo, Magnetic, MaskedHeading, Particles, Reveal } from "./ui-bits";
@@ -125,54 +123,31 @@ export function Hero() {
   );
 }
 
-/* ----------------------------- MARQUEE ----------------------------- */
-
-export function Marquee() {
-  const items = ["Fresh Daily", "Real Belgian Chocolate", "Custom Designs", "Eggless Available", "Same Day Delivery"];
-  return (
-    <div className="overflow-hidden border-y border-gold/25 bg-secondary py-4">
-      <div className="animate-marquee flex w-max gap-12 whitespace-nowrap">
-        {[...items, ...items, ...items, ...items].map((t, i) => (
-          <span
-            key={i}
-            className="flex items-center gap-12 font-display text-lg tracking-wide text-primary/70"
-          >
-            {t} <Sparkles className="h-4 w-4 text-gold" />
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ---------------------------- CATEGORIES ---------------------------- */
 
-function CategoryTile({ c, offset }: { c: (typeof categories)[number]; offset: number }) {
+const cakeItems = menuItems.filter((m) => m.categorySlug === "cakes");
+
+function CategoryTile({ c, offset }: { c: MenuItem; offset: number }) {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    const start = window.setTimeout(() => {
-      setIdx((v) => v + 1);
-    }, offset * 220);
-    const id = window.setInterval(() => setIdx((v) => v + 1), 1000);
-    return () => {
-      window.clearTimeout(start);
-      window.clearInterval(id);
-    };
-  }, [offset]);
+    const id = window.setInterval(() => setIdx((v) => v + 1), 3000);
+    return () => window.clearInterval(id);
+  }, []);
 
-  const src = c.images[idx % c.images.length]!;
+  const cake = cakeItems[(offset + idx) % cakeItems.length]!;
+  const src = cake.image;
 
   return (
     <Link
       to="/menu"
-      search={{ category: c.slug }}
+      search={{ category: c.categorySlug }}
       className="group relative block h-72 w-56 shrink-0 overflow-hidden rounded-[2rem] shadow-soft silk transition-all duration-500 hover:shadow-lift"
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.img
           key={src}
           src={src}
-          alt={c.label}
+          alt={cake.name}
           loading="lazy"
           width={900}
           height={1100}
@@ -184,7 +159,7 @@ function CategoryTile({ c, offset }: { c: (typeof categories)[number]; offset: n
         />
       </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-t from-espresso/80 via-espresso/10 to-transparent" />
-      <span className="absolute bottom-5 left-5 font-display text-xl text-cream">{c.label}</span>
+      <span className="absolute bottom-5 left-5 font-display text-xl text-cream">{cake.name}</span>
     </Link>
   );
 }
@@ -192,7 +167,7 @@ function CategoryTile({ c, offset }: { c: (typeof categories)[number]; offset: n
 export function Categories() {
   return (
     <section id="categories" className="relative overflow-hidden px-0 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="px-6 md:px-12">
         <Reveal>
           <Eyebrow>Browse the counter</Eyebrow>
         </Reveal>
@@ -204,7 +179,7 @@ export function Categories() {
 
       <div className="group mt-12 overflow-hidden">
         <div className="animate-marquee flex w-max gap-6 group-hover:[animation-play-state:paused]">
-          {[...categories, ...categories].map((c, i) => (
+          {[...cakeItems, ...cakeItems].map((c, i) => (
             <CategoryTile key={`${c.slug}-${i}`} c={c} offset={i} />
           ))}
         </div>
@@ -215,6 +190,34 @@ export function Categories() {
 
 
 /* --------------------------- PRODUCT CARDS --------------------------- */
+
+const signatureSlugs = [
+  "ferrero-hazelnut-cake",
+  "chocolate-truffle-cake",
+  "black-forest-cake",
+  "red-velvet-cherry-cake",
+  "tiramisu-cake",
+  "butterscotch-praline-cake",
+  "blueberry-cheesecake",
+  "pastel-rainbow-cake",
+  "classic-vanilla-dream",
+  "choco-drip-cake",
+];
+
+const signatureItems: Product[] = signatureSlugs
+  .map((s) => menuItems.find((m) => m.slug === s))
+  .filter((m): m is MenuItem => Boolean(m))
+  .map((m) => ({
+    name: m.name,
+    category: m.category,
+    categorySlug: m.categorySlug,
+    note: m.note,
+    price: inr(m.price),
+    image: m.image,
+    images: [m.image],
+    badge: m.badges[0],
+    slug: m.slug,
+  }));
 
 function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Product) => void; i: number }) {
   const [liked, setLiked] = useState(false);
@@ -249,8 +252,13 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
         style={{ transformStyle: "preserve-3d", perspective: 900 }}
         className="glass group relative overflow-hidden rounded-[2rem] p-4 transition-shadow duration-500 hover:shadow-gold"
       >
-        <div className="relative overflow-hidden rounded-[1.4rem]">
-          <Link to="/menu" search={{ category: slugify(p.category) }} aria-label={`View ${p.name} on the menu`}>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-cream via-peach to-cream">
+          <Link
+            to="/menu"
+            search={{ category: p.categorySlug ?? slugify(p.category) }}
+            aria-label={`View ${p.name} on the menu`}
+            className="block h-full w-full"
+          >
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.img
                 key={images[imgIdx]}
@@ -259,12 +267,12 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
                 loading="lazy"
                 width={900}
                 height={1100}
-                initial={{ opacity: 0, scale: 1.08 }}
+                initial={{ opacity: 0, scale: 1.04 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.02 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="h-72 w-full object-cover"
+                className="h-full w-full object-contain object-center"
               />
             </AnimatePresence>
           </Link>
@@ -319,28 +327,41 @@ export function Menu() {
   const [quick, setQuick] = useState<Product | null>(null);
 
   return (
-    <section id="menu" className="relative px-6 py-24 md:px-12 md:py-32">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <Reveal>
-              <Eyebrow>The signature menu</Eyebrow>
+    <section id="menu" className="relative w-full">
+      <div className="relative bg-[#8F1D2C]">
+        <span
+          aria-hidden
+          className="absolute inset-y-0 right-0 w-1 bg-[#1C1013]"
+        />
+        <div className="px-6 py-8 md:px-12 md:py-12">
+          <div className="grid items-end gap-10 lg:grid-cols-2">
+            <div>
+              <Reveal>
+                <span className="flex items-center gap-4 text-[0.7rem] font-medium uppercase tracking-[0.42em] text-cream/80">
+                  <span className="h-px w-10 bg-cream/50" />
+                  The Signature Menu
+                </span>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <h2 className="mt-4 font-display text-xl leading-[1.05] text-cream md:text-3xl lg:text-4xl">
+                  <span className="block">Baked to order,</span>
+                  <span className="block">never in bulk</span>
+                </h2>
+              </Reveal>
+            </div>
+            <Reveal delay={0.2}>
+              <p className="max-w-sm text-sm leading-relaxed text-cream/80">
+                Ten signatures on the counter every day, plus fully bespoke designs for weddings and
+                celebrations.
+              </p>
             </Reveal>
-            <MaskedHeading
-              text="Baked to order, never in bulk"
-              className="mt-5 max-w-2xl text-4xl text-primary md:text-6xl"
-            />
           </div>
-          <Reveal delay={0.15}>
-            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Ten signatures on the counter every day, plus fully bespoke designs for weddings and
-              celebrations.
-            </p>
-          </Reveal>
         </div>
+      </div>
 
-        <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p, i) => (
+      <div className="px-6 py-24 md:px-12 md:py-32">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          {signatureItems.map((p, i) => (
             <ProductCard key={p.name} p={p} i={i} onQuickView={setQuick} />
           ))}
         </div>
@@ -407,7 +428,7 @@ export function BestSellers() {
   return (
     <section className="relative overflow-hidden cocoa-surface py-24 md:py-32">
       <Particles count={20} tone="gold" />
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="px-6 md:px-12">
         <Eyebrow>Most loved</Eyebrow>
         <MaskedHeading text="This week's best sellers" className="mt-5 text-4xl text-cream md:text-6xl" />
       </div>
@@ -423,7 +444,8 @@ export function BestSellers() {
 export function About() {
   return (
     <section id="about" className="relative px-6 py-24 md:px-12 md:py-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid items-center gap-14 lg:grid-cols-[5fr_7fr]">
         <Reveal>
           <div className="relative">
             <img
@@ -455,39 +477,47 @@ export function About() {
             className="mt-5 text-4xl leading-tight text-primary md:text-5xl"
           />
           <Reveal delay={0.1}>
-            <p className="mt-6 max-w-xl leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Nutty Delight began with one oven, one whisk and a stubborn belief that a cake should taste
               as beautiful as it looks. Today Vithika and her small team bake every order by hand —
               no premixes, no shortcuts, no compromise on butter.
             </p>
           </Reveal>
           <Reveal delay={0.18}>
-            <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               From single-tier birthday cakes to hundred-guest wedding centrepieces, each design starts
               with a conversation and ends with a bite you remember.
             </p>
           </Reveal>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 sm:grid-cols-3">
             {[
               { icon: Award, t: "Award-winning", s: "Best patisserie 2024" },
               { icon: Leaf, t: "Pure ingredients", s: "No preservatives" },
               { icon: Sparkles, t: "Custom design", s: "Made for your day" },
             ].map(({ icon: Icon, t, s }) => (
-              <div key={t} className="glass rounded-[1.5rem] p-5">
-                <Icon className="h-5 w-5 text-gold" />
-                <p className="mt-3 font-display text-base text-primary">{t}</p>
-                <p className="text-xs text-muted-foreground">{s}</p>
+              <div key={t} className="glass rounded-[1.5rem] p-6">
+                <Icon className="h-6 w-6 text-gold" />
+                <p className="mt-4 font-display text-lg text-primary">{t}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{s}</p>
               </div>
             ))}
           </div>
         </div>
+      </div>
       </div>
     </section>
   );
 }
 
 /* ----------------------------- GALLERY ----------------------------- */
+
+const customCakeGallery: GalleryItem[] = menuItems
+  .filter((m) => m.name === "Custom Cake")
+  .map((m) => ({
+    src: m.image,
+    alt: m.note,
+  }));
 
 export function Gallery() {
   const [open, setOpen] = useState<number | null>(null);
@@ -500,8 +530,8 @@ export function Gallery() {
         </Reveal>
         <MaskedHeading text="A gallery of good mornings" className="mt-5 text-4xl text-primary md:text-6xl" />
 
-        <div className="mt-12 columns-2 gap-5 lg:columns-3 [&>*]:mb-5">
-          {gallery.map((g, i) => (
+        <div className="mt-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
+          {customCakeGallery.map((g, i) => (
             <Reveal key={g.alt} delay={(i % 3) * 0.06}>
               <button
                 type="button"
@@ -512,9 +542,7 @@ export function Gallery() {
                   src={g.src}
                   alt={g.alt}
                   loading="lazy"
-                  className={`w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110 ${
-                    g.h === "tall" ? "h-[26rem]" : "h-64"
-                  }`}
+                  className="aspect-[4/5] w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
                 />
                 <span className="absolute inset-0 glass opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <span className="absolute bottom-4 left-4 text-left font-display text-sm text-primary opacity-0 transition-opacity duration-500 group-hover:opacity-100">
@@ -540,8 +568,8 @@ export function Gallery() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.94, opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              src={gallery[open]!.src}
-              alt={gallery[open]!.alt}
+              src={customCakeGallery[open]!.src}
+              alt={customCakeGallery[open]!.alt}
               className="max-h-[85vh] max-w-full rounded-[1.6rem] object-contain shadow-lift"
             />
           </motion.div>
@@ -563,7 +591,7 @@ export function Testimonials() {
   return (
     <section className="relative overflow-hidden px-6 py-24 md:px-12 md:py-32">
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/15 blur-3xl" />
-      <div className="mx-auto max-w-4xl text-center">
+      <div className="text-center">
         <Reveal>
           <Eyebrow>Kind words</Eyebrow>
         </Reveal>
@@ -748,7 +776,8 @@ export function Offer() {
 
   return (
     <section className="px-6 pb-24 md:px-12">
-      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] cocoa-surface px-8 py-16 text-center md:px-16 md:py-20">
+      <div className="mx-auto max-w-7xl">
+        <div className="relative overflow-hidden rounded-[2.5rem] cocoa-surface px-8 py-16 text-center md:px-16 md:py-20">
         {confetti.map((c, i) => (
           <span
             key={i}
@@ -791,11 +820,16 @@ export function Offer() {
           Claim the offer
         </Magnetic>
       </div>
+      </div>
     </section>
   );
 }
 
 /* ---------------------------- INSTAGRAM ---------------------------- */
+
+const beverageFeed = menuItems
+  .filter((m) => m.categorySlug === "beverages" || m.slug === "mango-shake")
+  .map((m) => ({ src: m.image, name: m.name }));
 
 export function InstagramFeed() {
   return (
@@ -806,9 +840,9 @@ export function InstagramFeed() {
         </Reveal>
         <MaskedHeading text="Fresh from our feed" className="mt-5 text-4xl text-primary md:text-5xl" />
 
-        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {instagramGrid.map((src, i) => (
-            <Reveal key={i} delay={i * 0.05}>
+        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
+          {beverageFeed.map((b, i) => (
+            <Reveal key={b.src} delay={i * 0.05}>
               <a
                 href="https://instagram.com"
                 target="_blank"
@@ -816,8 +850,8 @@ export function InstagramFeed() {
                 className="group relative block aspect-square overflow-hidden rounded-[1.4rem]"
               >
                 <img
-                  src={src}
-                  alt="Nutty Delight bakery instagram post"
+                  src={b.src}
+                  alt={`${b.name} from Nutty Delight bakery`}
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-[1.1s] group-hover:scale-115"
                 />
@@ -840,7 +874,8 @@ export function Contact() {
 
   return (
     <section id="contact" className="px-6 pb-28 md:px-12">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 lg:grid-cols-2">
         <Reveal>
           <div className="glass h-full rounded-[2.5rem] p-8 md:p-10">
             <Eyebrow>Visit or order</Eyebrow>
@@ -857,7 +892,7 @@ export function Contact() {
                   rel="noopener noreferrer"
                   className="text-muted-foreground transition-colors hover:text-primary"
                 >
-                  Rajat Jayanti Complex, A-16, Scheme No 54, Vijay Nagar, Indore 452010 — open in Google Maps for live directions.
+                  Rajat Jayanti Complex, Kushabhau Thakre Marg, Ganesh Nagar, Vijay Nagar, A-16, Scheme No 54, Indore, Madhya Pradesh 452010 — open in Google Maps for live directions.
                 </a>
               </li>
               <li className="flex gap-4">
@@ -870,7 +905,7 @@ export function Contact() {
               </li>
               <li className="flex gap-4">
                 <Phone className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-                <a href="https://wa.me/919000000000" className="text-muted-foreground hover:text-primary">
+                <a href="https://wa.me/918770941861" className="text-muted-foreground hover:text-primary">
                   WhatsApp us for same-day orders
                 </a>
               </li>
@@ -930,6 +965,7 @@ export function Contact() {
             </button>
           </form>
         </Reveal>
+      </div>
       </div>
     </section>
   );

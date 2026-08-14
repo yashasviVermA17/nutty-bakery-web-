@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
+import useEmblaCarousel from "embla-carousel-react";
 import {
   ChevronRight,
   Clock,
@@ -31,7 +32,7 @@ function useCake() {
       menuItems
         .filter((m) => m.slug !== slug)
         .sort((a, b) => b.reviews - a.reviews)
-        .slice(0, 6),
+        .slice(0, 10),
     [slug],
   );
   return { item, related };
@@ -44,11 +45,9 @@ function CakePage() {
 
   return (
     <div className="px-6 pb-28 pt-32 md:px-12">
-      <div className="mx-auto max-w-7xl">
         <Breadcrumb name={item.name} />
         <CakeHero item={item} />
         <FrequentlyBought items={related} />
-      </div>
     </div>
   );
 }
@@ -131,9 +130,9 @@ function CakeHero({ item }: { item: MenuItem }) {
   ];
 
   return (
-    <div className="mt-8 grid gap-12 lg:grid-cols-2">
+    <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
       {/* ---------------- GALLERY ---------------- */}
-      <div>
+      <div className="min-w-0">
         <div className="relative overflow-hidden rounded-[2.5rem] shadow-soft silk">
           <AnimatePresence mode="wait">
             <motion.img
@@ -141,12 +140,12 @@ function CakeHero({ item }: { item: MenuItem }) {
               src={views[active]}
               alt={`${item.name} view ${active + 1}`}
               width={900}
-              height={1100}
+              height={900}
               initial={{ opacity: 0, scale: 1.04 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="h-[26rem] w-full object-cover md:h-[32rem]"
+              className="aspect-square w-full object-cover"
             />
           </AnimatePresence>
           <div className="absolute left-4 top-4 flex flex-col items-start gap-2">
@@ -185,7 +184,7 @@ function CakeHero({ item }: { item: MenuItem }) {
       </div>
 
       {/* ---------------- DETAILS ---------------- */}
-      <div>
+      <div className="min-w-0">
         <Eyebrow>{item.category}</Eyebrow>
         <h1 className="mt-4 font-display text-4xl text-primary md:text-5xl">{item.name}</h1>
 
@@ -534,6 +533,20 @@ function FaqsTab() {
 }
 
 function FrequentlyBought({ items }: { items: MenuItem[] }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    watchDrag: true,
+    duration: 35,
+  });
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (!emblaApi || paused) return;
+    const id = window.setInterval(() => emblaApi.scrollNext(), 3000);
+    return () => window.clearInterval(id);
+  }, [emblaApi, paused]);
+
   return (
     <section className="mt-24">
       <Reveal>
@@ -543,29 +556,41 @@ function FrequentlyBought({ items }: { items: MenuItem[] }) {
         </h2>
       </Reveal>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((p, i) => (
-          <Reveal key={p.slug} delay={(i % 3) * 0.07}>
-            <Link
-              to="/cake/$slug"
-              params={{ slug: p.slug }}
-              className="glass group flex items-center gap-4 rounded-[1.6rem] p-3 transition-all duration-500 hover:-translate-y-1 hover:shadow-gold"
+      <div
+        ref={emblaRef}
+        className="mt-10 overflow-hidden"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+      >
+        <div className="flex">
+          {items.map((p) => (
+            <div
+              key={p.slug}
+              className="min-w-0 flex-[0_0_100%] px-2.5 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
             >
-              <img
-                src={p.image}
-                alt={p.name}
-                loading="lazy"
-                width={160}
-                height={160}
-                className="h-20 w-20 shrink-0 rounded-2xl object-cover"
-              />
-              <div className="min-w-0">
-                <h3 className="truncate font-display text-base text-primary">{p.name}</h3>
-                <p className="mt-1 text-sm text-gold">{inr(p.price)}</p>
-              </div>
-            </Link>
-          </Reveal>
-        ))}
+              <Link
+                to="/cake/$slug"
+                params={{ slug: p.slug }}
+                className="glass group flex items-center gap-4 rounded-[1.6rem] p-3 transition-all duration-500 hover:-translate-y-1 hover:shadow-gold"
+              >
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  loading="lazy"
+                  width={160}
+                  height={160}
+                  className="h-20 w-20 shrink-0 rounded-full object-cover object-center"
+                />
+                <div className="min-w-0">
+                  <h3 className="truncate font-display text-base text-primary">{p.name}</h3>
+                  <p className="mt-1 text-sm text-gold">{inr(p.price)}</p>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

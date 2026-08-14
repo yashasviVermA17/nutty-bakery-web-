@@ -1,21 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowUpDown, Clock, Heart, Menu, RotateCcw, SlidersHorizontal, Star, X } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import menuCard1 from "@/assets/products/menu cards.webp";
-import menuCard2 from "@/assets/products/menu cards do.webp";
-import menuCard3 from "@/assets/products/menu cards 4.webp";
-import menuCard4 from "@/assets/products/menu card5.webp";
+import { ArrowUpDown, Clock, Heart, RotateCcw, SlidersHorizontal, Star, X } from "lucide-react";
 import {
   categoryCount,
   categoryOptions,
@@ -126,7 +112,6 @@ function MenuPage() {
 
   return (
     <section className="px-6 pb-24 pt-36 md:px-12">
-      <div className="mx-auto max-w-7xl">
         <Reveal>
           <Eyebrow>All Products</Eyebrow>
         </Reveal>
@@ -140,49 +125,6 @@ function MenuPage() {
             delivered today.
           </p>
         </Reveal>
-
-        <div className="mt-8">
-          <Dialog>
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-full bg-gold px-7 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-espresso shadow-gold transition-transform hover:scale-[1.03]"
-              >
-                <Menu className="h-4 w-4" />
-                View Menu
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl border-gold/20 bg-background/95 p-0 backdrop-blur-xl sm:rounded-[2rem]">
-              <DialogHeader className="px-7 pt-7">
-                <DialogTitle className="font-display text-2xl text-primary">
-                  Our Menu
-                </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
-                  Browse everything we baked fresh today.
-                </DialogDescription>
-              </DialogHeader>
-              <ScrollArea className="max-h-[70vh] px-7 pb-7">
-                <div className="space-y-5">
-                  {[menuCard1, menuCard2, menuCard3, menuCard4].map((src, i) => (
-                    <img
-                      key={i}
-                      src={src}
-                      alt={`Menu card ${i + 1}`}
-                      loading="lazy"
-                      width={1200}
-                      height={1600}
-                      className="w-full rounded-2xl object-contain shadow-gold"
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-              <DialogClose className="absolute right-4 top-4 rounded-full border border-gold/30 p-2 text-muted-foreground transition-colors hover:text-primary">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        </div>
 
         <div className="mt-14 grid gap-10 lg:grid-cols-[280px_1fr]">
           {/* ---------------- FILTERS ---------------- */}
@@ -424,7 +366,6 @@ function MenuPage() {
             )}
           </div>
         </div>
-      </div>
     </section>
   );
 }
@@ -477,15 +418,15 @@ function CatalogCard({ m, i }: { m: MenuItem; i: number }) {
   return (
     <Reveal delay={(i % 3) * 0.07}>
       <motion.article className="glass group relative flex h-full flex-col overflow-hidden rounded-[2rem] p-4 transition-shadow duration-500 hover:shadow-gold">
-        <div className="relative overflow-hidden rounded-[1.4rem]">
-          <Link to="/cake/$slug" params={{ slug: m.slug }} aria-label={`View ${m.name}`}>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-cream via-peach to-cream">
+          <Link to="/cake/$slug" params={{ slug: m.slug }} aria-label={`View ${m.name}`} className="block h-full w-full">
             <img
               src={m.image}
               alt={m.name}
               loading="lazy"
               width={900}
               height={1100}
-              className="h-64 w-full object-cover transition-transform duration-[1.1s] group-hover:scale-110"
+              className="h-full w-full object-contain object-center transition-transform duration-[1.1s] group-hover:scale-105"
             />
           </Link>
 

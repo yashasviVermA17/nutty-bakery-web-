@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "./router";
 import { CartProvider } from "./lib/cart";
+import { OrderNowProvider } from "./components/site/order-now";
 import "./index.css";
 
 const router = getRouter();
@@ -18,7 +19,9 @@ const rootElement = document.getElementById("root")!;
 createRoot(rootElement).render(
   <StrictMode>
     <CartProvider>
-      <RouterProvider router={router} />
+      <OrderNowProvider>
+        <RouterProvider router={router} />
+      </OrderNowProvider>
     </CartProvider>
   </StrictMode>,
 );

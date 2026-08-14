@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Hero,
-  Marquee,
   Categories,
   Menu,
   BestSellers,
@@ -23,14 +22,13 @@ function HomePage() {
   return (
     <>
       <Hero />
-      <Marquee />
       <Categories />
       <Menu />
       <BestSellers />
       <About />
+      <HappyCustomers />
       <Gallery />
       <Testimonials />
-      <HappyCustomers />
       <Process />
       <Offer />
       <InstagramFeed />

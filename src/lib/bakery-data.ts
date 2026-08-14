@@ -17,11 +17,13 @@ import interior from "@/assets/storefront.png";
 export type Product = {
   name: string;
   category: string;
+  categorySlug?: string;
   note: string;
   price: string;
   image: string;
   images?: string[];
   badge?: string;
+  slug?: string;
 };
 
 export type Category = {
@@ -144,17 +146,6 @@ export type GalleryItem = {
   alt: string;
   h?: "tall";
 };
-
-export const gallery: GalleryItem[] = [
-  { src: g2, alt: "Chef piping buttercream rosettes on a luxury cake", h: "tall" },
-  { src: chocolate, alt: "Chocolate truffle cake slice with ganache" },
-  { src: g3, alt: "Powdered sugar falling over fresh croissants", h: "tall" },
-  { src: wedding, alt: "Three tier wedding cake with roses" },
-  { src: g1, alt: "Molten chocolate dripping over a cake", h: "tall" },
-  { src: macarons, alt: "Pastel french macarons" },
-  { src: g4, alt: "Coffee poured beside a slice of cake" },
-  { src: interior, alt: "Warm luxury bakery interior at golden hour", h: "tall" },
-];
 
 export const testimonials = [
   {
