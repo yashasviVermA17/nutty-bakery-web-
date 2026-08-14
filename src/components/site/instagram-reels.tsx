@@ -1,6 +1,5 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { Eyebrow, MaskedHeading, Reveal } from "./ui-bits";
 
 declare global {
   interface Window {
@@ -201,10 +200,10 @@ function ReelCard({
   );
 }
 
-export function InstagramReels() {
+export function ReelsCarousel() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const [ready, setReady] = useState(false);
   const [index, setIndex] = useState(0);
@@ -379,75 +378,60 @@ export function InstagramReels() {
   };
 
   return (
-    <section ref={sectionRef} className="bg-cream/70 py-20 md:py-28">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="text-center">
-          <Eyebrow>Instagram Reels</Eyebrow>
-          <MaskedHeading
-            text="See It. Feel It. Love It."
-            className="mt-5 text-4xl text-primary md:text-5xl"
-          />
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Fresh bakes, behind-the-scenes and little moments from our kitchen.
-          </p>
-        </div>
-
-        <Reveal className="mt-12">
-          <div
-            ref={viewportRef}
-            className="cursor-grab overflow-hidden active:cursor-grabbing"
-            onMouseEnter={() => (hoveredRef.current = true)}
-            onMouseLeave={() => (hoveredRef.current = false)}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-          >
+    <div ref={sectionRef} className="relative">
+      <div
+        ref={viewportRef}
+        className="cursor-grab overflow-hidden active:cursor-grabbing"
+        onMouseEnter={() => (hoveredRef.current = true)}
+        onMouseLeave={() => (hoveredRef.current = false)}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+        <div
+          ref={trackRef}
+          className="flex items-stretch"
+          style={{
+            transform: `translate3d(${-pos}px, 0, 0)`,
+            transition: dragging
+              ? "none"
+              : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "transform",
+          }}
+        >
+          {REELS.map((url) => (
             <div
-              ref={trackRef}
-              className="flex items-stretch"
-              style={{
-                transform: `translate3d(${-pos}px, 0, 0)`,
-                transition: dragging
-                  ? "none"
-                  : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)",
-                willChange: "transform",
-              }}
+              key={url}
+              className="shrink-0 pr-3 sm:pr-4 lg:pr-6"
+              style={{ width: step || undefined }}
             >
-              {REELS.map((url) => (
-                <div
-                  key={url}
-                  className="shrink-0 pr-3 sm:pr-4 lg:pr-6"
-                  style={{ width: step || undefined }}
-                >
-                  <ReelCard url={url} active={ready} onWheelCapture={onWheelCapture} />
-                </div>
-              ))}
+              <ReelCard url={url} active={ready} onWheelCapture={onWheelCapture} />
             </div>
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => goBy(-1)}
-              disabled={index <= 0}
-              aria-label="Previous reels"
-              className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goBy(1)}
-              disabled={index >= maxIndex}
-              aria-label="Next reels"
-              className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </Reveal>
+          ))}
+        </div>
       </div>
-    </section>
+
+      <div className="mt-8 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          onClick={() => goBy(-1)}
+          disabled={index <= 0}
+          aria-label="Previous reels"
+          className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => goBy(1)}
+          disabled={index >= maxIndex}
+          aria-label="Next reels"
+          className="grid h-12 w-12 place-items-center rounded-full border-2 border-primary/15 bg-white text-primary shadow-soft transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-primary/15 disabled:bg-white disabled:text-primary/40 disabled:hover:bg-white"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
   );
 }

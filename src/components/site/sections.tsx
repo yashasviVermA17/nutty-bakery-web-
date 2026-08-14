@@ -32,6 +32,7 @@ import {
 import heroCake from "@/assets/hero-cake.jpg";
 import storefront from "@/assets/storefront.png";
 import { Eyebrow, Logo, Magnetic, MaskedHeading, Particles, Reveal } from "./ui-bits";
+import { ReelsCarousel } from "./instagram-reels";
 
 /* ------------------------------- HERO ------------------------------- */
 
@@ -401,6 +402,21 @@ export function Menu() {
 }
 
 /* --------------------------- BEST SELLERS --------------------------- */
+
+export function BestSellers() {
+  return (
+    <section className="relative overflow-hidden cocoa-surface py-24 md:py-32">
+      <Particles count={20} tone="gold" />
+      <div className="mx-auto max-w-7xl px-6 md:px-12">
+        <Eyebrow>Most loved</Eyebrow>
+        <MaskedHeading text="This week's best sellers" className="mt-5 text-4xl text-cream md:text-6xl" />
+      </div>
+      <Reveal className="mt-12">
+        <ReelsCarousel />
+      </Reveal>
+    </section>
+  );
+}
 
 /* ------------------------------ ABOUT ------------------------------ */
 
