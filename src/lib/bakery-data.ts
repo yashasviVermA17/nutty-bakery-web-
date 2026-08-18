@@ -37,6 +37,7 @@ export const categories: Category[] = [
   { slug: "cakes", label: "Wedding Cakes", images: [wedding, chocolate, birthday] },
   { slug: "cupcakes", label: "Cupcakes", images: [cupcake, macarons] },
   { slug: "cookies", label: "Cookies", images: [cookies, brownies] },
+  { slug: "brownies", label: "Brownies", images: [brownies, cookies, cheesecake] },
   { slug: "pastries", label: "Pastries", images: [pastries, g3] },
   { slug: "desserts", label: "Desserts", images: [cheesecake, donuts] },
   { slug: "custom", label: "Custom", images: [interior, g2] },

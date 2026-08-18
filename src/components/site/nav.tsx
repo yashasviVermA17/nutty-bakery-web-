@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import { useState } from "react";
 import { Menu, X, MessageCircle, ShoppingBag } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -69,23 +69,30 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { count, setOpen: setCartOpen } = useCart();
   const { setOpen: setOrderOpen } = useOrderNow();
   const { scrollY } = useScroll();
   const pad = useTransform(scrollY, [0, 200], [22, 10]);
 
+  useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 80));
+
   return (
     <>
       <motion.header
         style={{ paddingTop: pad, paddingBottom: pad }}
-        className="fixed inset-x-0 top-0 z-50 border-b border-gold/25 bg-background px-5 md:px-10"
+        className={`fixed inset-x-0 top-0 z-50 px-5 transition-colors duration-500 md:px-10 ${
+          scrolled
+            ? "border-b border-gold/25 bg-background"
+            : "border-b border-transparent bg-transparent"
+        }`}
       >
         <nav className="flex items-center justify-between">
           <NavItem href="#home" className="flex items-center gap-3">
             <Logo className="h-12 w-12 rounded-full md:h-14 md:w-14" />
-            <span className="hidden font-display text-lg leading-tight text-primary sm:block">
+            <span className={`hidden font-display text-lg leading-tight sm:block ${scrolled ? "text-primary" : "text-cream"}`}>
               Nutty Delight
-              <span className="block text-[0.6rem] tracking-[0.35em] text-muted-foreground">
+              <span className={`block text-[0.6rem] tracking-[0.35em] ${scrolled ? "text-muted-foreground" : "text-cream/70"}`}>
                 BY VITHIKA
               </span>
             </span>
@@ -96,7 +103,7 @@ export function Navbar() {
               <li key={l.href}>
                 <NavItem
                   href={l.href}
-                  className="group relative text-sm tracking-wide text-foreground/80 transition-colors hover:text-primary"
+                  className={`group relative text-sm tracking-wide transition-colors hover:text-primary ${scrolled ? "text-foreground/80" : "text-cream/90"}`}
                 >
                   {l.label}
                   <span className="absolute -bottom-1 left-0 h-px w-0 bg-gold transition-all duration-300 group-hover:w-full" />
@@ -106,12 +113,12 @@ export function Navbar() {
           </ul>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label={`Open cart, ${count} items`}
-              onClick={() => setCartOpen(true)}
-              className="relative grid h-10 w-10 place-items-center rounded-full border border-gold/40 text-primary transition-colors hover:bg-accent"
-            >
+              <button
+                type="button"
+                aria-label={`Open cart, ${count} items`}
+                onClick={() => setCartOpen(true)}
+                className={`relative grid h-10 w-10 place-items-center rounded-full border transition-colors hover:bg-accent ${scrolled ? "border-gold/40 text-primary" : "border-cream/40 text-cream"}`}
+              >
               <ShoppingBag className="h-4 w-4" />
               {count > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full shimmer-gold px-1 text-[0.6rem] font-bold text-espresso">
@@ -122,7 +129,7 @@ export function Navbar() {
             <Magnetic
               as="button"
               onClick={() => setOrderOpen(true)}
-              className="hidden rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground shadow-soft transition-transform hover:scale-[1.03] md:inline-flex"
+              className={`hidden rounded-full px-6 py-3 text-xs uppercase tracking-[0.2em] shadow-soft transition-transform hover:scale-[1.03] md:inline-flex ${scrolled ? "bg-primary text-primary-foreground" : "bg-cream text-espresso"}`}
             >
               Order Now
             </Magnetic>
@@ -130,7 +137,7 @@ export function Navbar() {
               type="button"
               aria-label="Open menu"
               onClick={() => setOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-full border border-gold/40 text-primary lg:hidden"
+              className={`grid h-10 w-10 place-items-center rounded-full border lg:hidden ${scrolled ? "border-gold/40 text-primary" : "border-cream/40 text-cream"}`}
             >
               <Menu className="h-5 w-5" />
             </button>

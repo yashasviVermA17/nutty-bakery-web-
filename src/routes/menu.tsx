@@ -15,6 +15,7 @@ import {
   type MenuItem,
 } from "@/lib/menu-data";
 import { useCart } from "@/lib/cart";
+import { Hero } from "../components/site/sections";
 import { Eyebrow, MaskedHeading, Reveal } from "../components/site/ui-bits";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -111,7 +112,9 @@ function MenuPage() {
   };
 
   return (
-    <section className="px-6 pb-24 pt-36 md:px-12">
+    <>
+      <Hero />
+      <section className="px-6 pb-24 pt-36 md:px-12">
         <Reveal>
           <Eyebrow>All Products</Eyebrow>
         </Reveal>
@@ -366,7 +369,8 @@ function MenuPage() {
             )}
           </div>
         </div>
-    </section>
+      </section>
+    </>
   );
 }
 
@@ -426,7 +430,7 @@ function CatalogCard({ m, i }: { m: MenuItem; i: number }) {
               loading="lazy"
               width={900}
               height={1100}
-              className="h-full w-full object-contain object-center transition-transform duration-[1.1s] group-hover:scale-105"
+              className="h-full w-full object-cover object-center transition-transform duration-[1.1s] group-hover:scale-105"
             />
           </Link>
 

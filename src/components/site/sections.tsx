@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from "motion/react";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import {
   Star,
@@ -27,10 +27,67 @@ import {
   type Product,
 } from "@/lib/bakery-data";
 import { inr, menuItems, type MenuItem } from "@/lib/menu-data";
-import heroCake from "@/assets/hero-cake.jpg";
+import heroCake from "@/assets/home page hero image.jpg";
 import storefront from "@/assets/storefront.png";
 import { Eyebrow, Logo, Magnetic, MaskedHeading, Particles, Reveal } from "./ui-bits";
 import { ReelsCarousel } from "./instagram-reels";
+
+/* ------------------------------- TYPEWRITER ------------------------------- */
+
+const TYPEWRITER_LINES = [
+  "Baked with Love",
+  "Crafted Just for You",
+  "Every Bite, a Memory",
+];
+const TYPE_SPEED = 70;
+const ERASE_SPEED = 40;
+const PAUSE_AFTER_TYPE = 1800;
+const PAUSE_AFTER_ERASE = 400;
+
+function TypeWriter() {
+  const [lineIdx, setLineIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [erasing, setErasing] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setCursorVisible((v) => !v), 530);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const line = TYPEWRITER_LINES[lineIdx]!;
+
+    if (!erasing) {
+      if (charIdx < line.length) {
+        const t = window.setTimeout(() => setCharIdx((c) => c + 1), TYPE_SPEED);
+        return () => window.clearTimeout(t);
+      }
+      const t = window.setTimeout(() => setErasing(true), PAUSE_AFTER_TYPE);
+      return () => window.clearTimeout(t);
+    }
+
+    if (charIdx > 0) {
+      const t = window.setTimeout(() => setCharIdx((c) => c - 1), ERASE_SPEED);
+      return () => window.clearTimeout(t);
+    }
+
+    setErasing(false);
+    setLineIdx((i) => (i + 1) % TYPEWRITER_LINES.length);
+  }, [charIdx, erasing, lineIdx]);
+
+  return (
+    <span className="font-display">
+      <span>{TYPEWRITER_LINES[lineIdx]!.slice(0, charIdx)}</span>
+      <span
+        className={`ml-0.5 inline-block w-[3px] align-middle bg-gold ${
+          cursorVisible ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ height: "1.1em" }}
+      />
+    </span>
+  );
+}
 
 /* ------------------------------- HERO ------------------------------- */
 
@@ -51,9 +108,9 @@ export function Hero() {
           height={1104}
           className="h-full w-full animate-slow-zoom object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/40 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
       </motion.div>
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-espresso/70 via-espresso/20 to-transparent" />
 
       <Particles count={22} tone="gold" />
       <div className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
@@ -63,60 +120,38 @@ export function Hero() {
         style={{ y: yText, opacity: fade }}
         className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pb-24 pt-36 md:px-12"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="glass w-fit rounded-[2.5rem] p-8 md:p-12"
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="text-sm uppercase tracking-[0.35em] text-primary"
         >
-          <div className="flex items-center gap-5">
-            <Logo className="h-20 w-20 rounded-full md:h-24 md:w-24" />
-            <Eyebrow>Artisan bakery · Est. 2019</Eyebrow>
-          </div>
+          Nutty Delight Bakery
+        </motion.p>
 
-          <h1 className="mt-7 max-w-2xl font-display text-[2.9rem] leading-[1.03] text-primary md:text-7xl">
-            Fall in love with
-            <span className="block gold-text">every single bite.</span>
-          </h1>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.5 }}
+          className="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight text-cream md:text-7xl"
+        >
+          <TypeWriter />
+        </motion.h1>
 
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground">
-            Hand-crafted celebration cakes, French pastries and small-batch desserts — baked fresh each
-            morning with real butter, real chocolate and a great deal of patience.
-          </p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          className="mt-6 max-w-lg text-base leading-relaxed text-cream/80 md:text-lg"
+        >
+          Handcrafted cakes, pastries &amp; desserts made with the finest ingredients.
+          Every creation is a little piece of happiness.
+        </motion.p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Magnetic
-              as="a"
-              href="#menu"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-xs uppercase tracking-[0.25em] text-primary-foreground shadow-lift transition-transform hover:scale-[1.04]"
-            >
-              <ShoppingBag className="h-4 w-4" /> Explore Menu
-            </Magnetic>
-            <Magnetic
-              as="a"
-              href="#contact"
-              className="inline-flex items-center gap-2 rounded-full border border-gold/60 px-8 py-4 text-xs uppercase tracking-[0.25em] text-primary transition-colors hover:bg-accent"
-            >
-              Custom Order
-            </Magnetic>
-          </div>
 
-          <div className="mt-10 flex flex-wrap gap-8 border-t border-gold/25 pt-6 text-sm">
-            {[
-              ["4.9★", "Google rating"],
-              ["12k+", "Cakes baked"],
-              ["100%", "Fresh, eggless option"],
-            ].map(([v, l]) => (
-              <div key={l}>
-                <div className="font-display text-2xl text-primary">{v}</div>
-                <div className="text-xs tracking-wide text-muted-foreground">{l}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </motion.div>
 
-      <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-[0.65rem] uppercase tracking-[0.4em] text-muted-foreground">
+      <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-[0.65rem] uppercase tracking-[0.4em] text-cream/60">
         <span className="animate-float-soft inline-block">Scroll</span>
       </div>
     </section>
@@ -165,6 +200,96 @@ function CategoryTile({ c, offset }: { c: MenuItem; offset: number }) {
 }
 
 export function Categories() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
+  const pausedRef = useRef(false);
+  const offsetRef = useRef(0);
+  const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
+  const wheelCooldownRef = useRef(0);
+  const speed = 0.55;
+
+  const tick = useCallback(() => {
+    if (!pausedRef.current && !dragRef.current.active) {
+      const track = trackRef.current;
+      if (track) {
+        const half = track.scrollWidth / 2;
+        offsetRef.current -= speed;
+        if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
+        track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  }, [speed]);
+
+  useEffect(() => {
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [tick]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return undefined;
+
+    const onWheel = (e: WheelEvent) => {
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (Math.abs(delta) < 4) return;
+
+      const now = Date.now();
+      if (now < wheelCooldownRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      pausedRef.current = true;
+      offsetRef.current -= delta;
+      const track = trackRef.current;
+      if (track) track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+
+      wheelCooldownRef.current = now + 60;
+      e.preventDefault();
+
+      clearTimeout((el as any).__whlTimer);
+      (el as any).__whlTimer = setTimeout(() => {
+        if (!dragRef.current.active) pausedRef.current = false;
+      }, 800);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    dragRef.current = { active: true, dragging: false, startX: e.clientX, startOffset: offsetRef.current };
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d.active) return;
+    const dx = e.clientX - d.startX;
+    if (!d.dragging) {
+      if (Math.abs(dx) < 6) return;
+      d.dragging = true;
+      pausedRef.current = true;
+      try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
+    }
+    offsetRef.current = d.startOffset + dx;
+    const track = trackRef.current;
+    if (track) track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+  };
+
+  const endDrag = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d.active) return;
+    d.active = false;
+    try { containerRef.current?.releasePointerCapture(e.pointerId); } catch { /* */ }
+    if (d.dragging) {
+      d.dragging = false;
+      setTimeout(() => { if (!dragRef.current.active) pausedRef.current = false; }, 600);
+    }
+  };
+
   return (
     <section id="categories" className="relative overflow-hidden px-0 py-24 md:py-32">
       <div className="px-6 md:px-12">
@@ -177,8 +302,17 @@ export function Categories() {
         />
       </div>
 
-      <div className="group mt-12 overflow-hidden">
-        <div className="animate-marquee flex w-max gap-6 group-hover:[animation-play-state:paused]">
+      <div
+        ref={containerRef}
+        className="mt-12 cursor-grab overflow-hidden active:cursor-grabbing touch-pan-y"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onMouseEnter={() => { if (!dragRef.current.active) pausedRef.current = true; }}
+        onMouseLeave={() => { if (!dragRef.current.active) pausedRef.current = false; }}
+      >
+        <div ref={trackRef} className="flex w-max gap-6">
           {[...cakeItems, ...cakeItems].map((c, i) => (
             <CategoryTile key={`${c.slug}-${i}`} c={c} offset={i} />
           ))}
@@ -199,7 +333,6 @@ const signatureSlugs = [
   "tiramisu-cake",
   "butterscotch-praline-cake",
   "blueberry-cheesecake",
-  "pastel-rainbow-cake",
   "classic-vanilla-dream",
   "choco-drip-cake",
 ];
@@ -272,7 +405,7 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
                 exit={{ opacity: 0, scale: 1.02 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="h-full w-full object-contain object-center"
+                className="h-full w-full object-cover object-center"
               />
             </AnimatePresence>
           </Link>
@@ -833,8 +966,8 @@ const beverageFeed = menuItems
 
 export function InstagramFeed() {
   return (
-    <section className="px-6 pb-24 md:px-12">
-      <div className="mx-auto max-w-7xl text-center">
+    <section className="pb-24">
+      <div className="text-center">
         <Reveal>
           <Eyebrow>@nuttydelight.bakery</Eyebrow>
         </Reveal>
@@ -843,10 +976,7 @@ export function InstagramFeed() {
         <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
           {beverageFeed.map((b, i) => (
             <Reveal key={b.src} delay={i * 0.05}>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
+              <div
                 className="group relative block aspect-square overflow-hidden rounded-[1.4rem]"
               >
                 <img
@@ -858,7 +988,7 @@ export function InstagramFeed() {
                 <span className="absolute inset-0 grid place-items-center bg-espresso/45 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
                   <Heart className="h-6 w-6 text-cream transition-transform duration-500 group-hover:scale-125 group-hover:fill-cream" />
                 </span>
-              </a>
+              </div>
             </Reveal>
           ))}
         </div>

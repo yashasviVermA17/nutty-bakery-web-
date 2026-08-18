@@ -121,7 +121,7 @@ function ReelEmbed({
     return () => window.clearTimeout(timer);
   }, [html]);
 
-  const stop = (e: React.WheelEvent) => {
+  const stopWheel = (e: React.WheelEvent) => {
     e.stopPropagation();
     onWheelCapture(e);
   };
@@ -131,10 +131,10 @@ function ReelEmbed({
       <div ref={rootRef} className="h-full w-full">
         <StaticEmbed html={html} />
       </div>
-      <div className="absolute inset-x-0 top-0 z-10 h-16" onWheel={stop} />
-      <div className="absolute inset-x-0 bottom-0 z-10 h-16" onWheel={stop} />
-      <div className="absolute inset-y-0 left-0 z-10 w-10" onWheel={stop} />
-      <div className="absolute inset-y-0 right-0 z-10 w-10" onWheel={stop} />
+      <div className="absolute inset-x-0 top-0 z-10 h-16" onWheel={stopWheel} />
+      <div className="absolute inset-x-0 bottom-0 z-10 h-16" onWheel={stopWheel} />
+      <div className="absolute inset-y-0 left-0 z-10 w-10" onWheel={stopWheel} />
+      <div className="absolute inset-y-0 right-0 z-10 w-10" onWheel={stopWheel} />
       {stalled && (
         <button
           type="button"
@@ -295,6 +295,7 @@ export function ReelsCarousel() {
       }
 
       let delta = e.deltaY;
+      if (Math.abs(e.deltaX) > Math.abs(delta)) delta = e.deltaX;
       if (e.deltaMode === 1) delta *= 16;
       else if (e.deltaMode === 2) delta *= el.clientHeight;
       if (Math.abs(delta) < 8) return;
