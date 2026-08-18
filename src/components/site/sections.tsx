@@ -205,7 +205,8 @@ export function Categories() {
   const offsetRef = useRef(0);
   const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
   const hoverDirRef = useRef<"left" | "right" | null>(null);
-  const [hovered, setHovered] = useState(false);
+  const userInteracting = useRef(false);
+  const userTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speed = 0.55;
   const hoverSpeed = 3;
 
@@ -253,6 +254,7 @@ export function Categories() {
       if (Math.abs(dx) < 6) return;
       d.dragging = true;
       pausedRef.current = true;
+      userInteracting.current = true;
       try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
     }
     offsetRef.current = d.startOffset + dx;
@@ -267,9 +269,37 @@ export function Categories() {
     try { containerRef.current?.releasePointerCapture(e.pointerId); } catch { /* */ }
     if (d.dragging) {
       d.dragging = false;
-      setTimeout(() => { if (!dragRef.current.active) pausedRef.current = false; }, 600);
+      if (userTimerRef.current) clearTimeout(userTimerRef.current);
+      userTimerRef.current = setTimeout(() => { userInteracting.current = false; pausedRef.current = false; }, 1200);
     }
   };
+
+  const onWheel = useCallback((e: React.WheelEvent) => {
+    if (Math.abs(e.deltaY) < 2 && Math.abs(e.deltaX) < 2) return;
+    const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    pausedRef.current = true;
+    userInteracting.current = true;
+    const track = trackRef.current;
+    if (track) {
+      offsetRef.current -= delta;
+      const half = track.scrollWidth / 2;
+      if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
+      if (offsetRef.current > 0) offsetRef.current -= half;
+      track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+    }
+    if (userTimerRef.current) clearTimeout(userTimerRef.current);
+    userTimerRef.current = setTimeout(() => { userInteracting.current = false; pausedRef.current = false; }, 1500);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const prevent = (e: WheelEvent) => {
+      if (userInteracting.current) e.preventDefault();
+    };
+    el.addEventListener("wheel", prevent, { passive: false });
+    return () => el.removeEventListener("wheel", prevent);
+  }, []);
 
   return (
     <section id="categories" className="relative overflow-x-clip px-0 py-24 md:py-32">
@@ -285,52 +315,21 @@ export function Categories() {
 
       <div
         ref={containerRef}
-        className="group/row mt-12 cursor-grab overflow-hidden active:cursor-grabbing touch-pan-y"
+        className="mt-12 cursor-grab overflow-hidden active:cursor-grabbing touch-pan-y"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        onMouseEnter={() => { setHovered(true); if (!dragRef.current.active) pausedRef.current = true; }}
-        onMouseLeave={() => { setHovered(false); hoverDirRef.current = null; if (!dragRef.current.active) pausedRef.current = false; }}
+        onWheel={onWheel}
       >
-        <button
-          type="button"
-          aria-label="Scroll left"
-          onClick={() => {
-            if (!trackRef.current) return;
-            const half = trackRef.current.scrollWidth / 2;
-            offsetRef.current += 320;
-            if (offsetRef.current > 0) offsetRef.current -= half;
-            trackRef.current.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
-          }}
-          className="absolute left-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-
-        <button
-          type="button"
-          aria-label="Scroll right"
-          onClick={() => {
-            if (!trackRef.current) return;
-            const half = trackRef.current.scrollWidth / 2;
-            offsetRef.current -= 320;
-            if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
-            trackRef.current.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
-          }}
-          className="absolute right-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
-
         <div
-          className="absolute left-0 top-0 z-[5] h-full w-1/5 cursor-w-resize"
-          onMouseEnter={() => { hoverDirRef.current = "left"; }}
+          className="absolute left-0 top-0 z-[5] h-full w-1/5"
+          onMouseEnter={() => { if (!userInteracting.current) hoverDirRef.current = "left"; }}
           onMouseLeave={() => { hoverDirRef.current = null; }}
         />
         <div
-          className="absolute right-0 top-0 z-[5] h-full w-1/5 cursor-e-resize"
-          onMouseEnter={() => { hoverDirRef.current = "right"; }}
+          className="absolute right-0 top-0 z-[5] h-full w-1/5"
+          onMouseEnter={() => { if (!userInteracting.current) hoverDirRef.current = "right"; }}
           onMouseLeave={() => { hoverDirRef.current = null; }}
         />
 
@@ -513,57 +512,48 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
     }
   };
 
+  const onWheel = useCallback((e: React.WheelEvent) => {
+    if (Math.abs(e.deltaY) < 2 && Math.abs(e.deltaX) < 2) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    el.scrollBy({ left: delta, behavior: "auto" });
+  }, []);
+
   return (
     <div className="py-24 md:py-32">
-      <div className="relative group/row">
-        <button
-          type="button"
-          aria-label="Scroll left"
-          onClick={() => scroll("left")}
-          className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-        <div
-          ref={scrollRef}
-          className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {allItems.map((p, i) => (
-            <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
-              <ProductCard p={p} i={i} onQuickView={onQuickView} />
-            </div>
-          ))}
-          <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
-            <Link
-              to="/menu"
-              search={{ category: "all" }}
-              className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 rounded-[2rem] border border-dashed border-primary/20 bg-gradient-to-br from-primary/[0.06] via-transparent to-gold/10 p-8 text-center transition-all duration-500 hover:border-primary/40 hover:shadow-gold"
-            >
-              <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-gold transition-transform duration-500 hover:scale-110">
-                <Cake className="h-7 w-7" />
-              </span>
-              <span className="font-display text-2xl text-primary">Go to Menu</span>
-              <span className="text-sm leading-relaxed text-muted-foreground">
-                Explore all our signatures,<br />cakes & more
-              </span>
-              <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:scale-105">
-                View Full Menu
-              </span>
-            </Link>
+      <div
+        ref={scrollRef}
+        className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={onWheel}
+      >
+        {allItems.map((p, i) => (
+          <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+            <ProductCard p={p} i={i} onQuickView={onQuickView} />
           </div>
+        ))}
+        <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+          <Link
+            to="/menu"
+            search={{ category: "all" }}
+            className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 rounded-[2rem] border border-dashed border-primary/20 bg-gradient-to-br from-primary/[0.06] via-transparent to-gold/10 p-8 text-center transition-all duration-500 hover:border-primary/40 hover:shadow-gold"
+          >
+            <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-gold transition-transform duration-500 hover:scale-110">
+              <Cake className="h-7 w-7" />
+            </span>
+            <span className="font-display text-2xl text-primary">Go to Menu</span>
+            <span className="text-sm leading-relaxed text-muted-foreground">
+              Explore all our signatures,<br />cakes & more
+            </span>
+            <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:scale-105">
+              View Full Menu
+            </span>
+          </Link>
         </div>
-        <button
-          type="button"
-          aria-label="Scroll right"
-          onClick={() => scroll("right")}
-          className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
       </div>
     </div>
   );
