@@ -1,6 +1,6 @@
 import birthday from "@/assets/p-birthday.jpg";
 import wedding from "@/assets/p-wedding.jpg";
-import cupcake from "@/assets/p-cupcake.jpg";
+import cupcake from "@/assets/cup cske 1.jpeg";
 import cookies from "@/assets/p-cookies.jpg";
 import brownies from "@/assets/p-brownies.jpg";
 import pastries from "@/assets/p-pastries.jpg";

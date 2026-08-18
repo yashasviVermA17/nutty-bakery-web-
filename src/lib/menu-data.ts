@@ -21,10 +21,10 @@ import cake from "@/assets/products/cake.webp";
 import cake6b from "@/assets/products/cake6.webp";
 import cakeke from "@/assets/products/cakeke.webp";
 import assortedCake from "@/assets/products/multiple type of cake.webp";
-import bite from "@/assets/products/bite.webp";
 import cakeBite from "@/assets/products/cake bite 1.webp";
-import cookiesImg from "@/assets/products/cookies.webp";
-import cookie2 from "@/assets/products/cookie2.webp";
+import cookiesImg from "@/assets/p-cookies.jpg";
+import cookie2 from "@/assets/cookie bowl .jpeg";
+import cupcake from "@/assets/p-cupcake.jpg";
 import coldCoffee from "@/assets/products/desi cold coffee.webp";
 import drink from "@/assets/products/drink.webp";
 import mangoTrifle from "@/assets/products/mongo vanulla trifle dessert bowl.webp";
@@ -47,9 +47,9 @@ import frozenNutella from "@/assets/Frozen Cheesecake Slices Nutella.jpg";
 import gulkandImg from "@/assets/Gulkand Cak.jpg";
 import kitkatCake from "@/assets/Kitkat Cake —.jpg";
 import mangoCheesecake from "@/assets/Mango Cheesecake Slices.jpg";
-import mangoKunafaBowl from "@/assets/Mango Desserts Mango Kunafa Bowl.jpg";
-import mangoTub from "@/assets/Mango Desserts Mango Kunafa Bowl.jpg";
-import mangoPudding from "@/assets/Mango Shake drink.jpg";
+import mangoKunafaBowl from "@/assets/mongo tub cake .jpeg";
+import mangoTub from "@/assets/mongo tub cake .jpeg";
+import mangoPudding from "@/assets/mongo pudding .jpeg";
 import mangoShake from "@/assets/Mango Shake drink.jpg";
 import nutellaBaked from "@/assets/Nutella Baked Cheesecake Slices.jpg";
 import pineappleCake from "@/assets/Pinapple Cake.jpg";
@@ -58,7 +58,7 @@ import strawberryBaked from "@/assets/strawberry Baked Cheesecake Slices.jpg";
 import tresLechesMango from "@/assets/Tres Leches Cake Alphonso Mango.jpg";
 import tresLechesRose from "@/assets/Tres Leches Cake Rose Per Slice).jpg";
 import tresLechesThandai from "@/assets/Tres Leches Cake Thandai Per Slice).jpg";
-import vanillaCake from "@/assets/Vanilla Waffle With White Chocolate.jpg";
+import vanillaCake from "@/assets/vanilla cake.jpeg";
 import vanillaOreo from "@/assets/Vanilla Waffle  With Oreo —.jpg";
 import vanillaWhite from "@/assets/Vanilla Waffle With White Chocolate.jpg";
 import vanillaDark from "@/assets/With Dark Chocolate Vanilla Waffle.jpg";
@@ -114,7 +114,6 @@ export const categoryOptions = [
   { slug: "tres-leches", label: "Tres Leches" },
   { slug: "mango-desserts", label: "Mango Desserts" },
   { slug: "desserts", label: "Desserts" },
-  { slug: "pastries", label: "Pastries" },
   { slug: "beverages", label: "Beverages" },
 ];
 
@@ -777,7 +776,7 @@ export const menuItems: MenuItem[] = [
     category: "Cupcakes",
     categorySlug: "cupcakes",
     note: "Vanilla bean cupcakes, mixed-berry swiss meringue",
-    image: bite,
+    image: cupcake,
     price: 220,
     mrp: 260,
     rating: 4.8,
