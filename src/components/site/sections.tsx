@@ -6,7 +6,7 @@ import {
   Star,
   Heart,
   Eye,
-  ShoppingBag,
+
   Clock,
   MapPin,
   Phone,
@@ -42,7 +42,6 @@ const TYPEWRITER_LINES = [
 const TYPE_SPEED = 70;
 const ERASE_SPEED = 40;
 const PAUSE_AFTER_TYPE = 1800;
-const PAUSE_AFTER_ERASE = 400;
 
 function TypeWriter() {
   const [lineIdx, setLineIdx] = useState(0);
