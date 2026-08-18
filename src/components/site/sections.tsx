@@ -203,7 +203,7 @@ export function Categories() {
   const rafRef = useRef<number>(0);
   const pausedRef = useRef(false);
   const offsetRef = useRef(0);
-  const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
+  const dragRef = useRef({ active: false, dragging: false, startX: 0, startY: 0, startOffset: 0 });
   const hoverDirRef = useRef<"left" | "right" | null>(null);
   const userInteracting = useRef(false);
   const userTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -243,20 +243,23 @@ export function Categories() {
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    dragRef.current = { active: true, dragging: false, startX: e.clientX, startOffset: offsetRef.current };
+    dragRef.current = { active: true, dragging: false, startX: e.clientX, startY: e.clientY, startOffset: offsetRef.current };
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     const d = dragRef.current;
     if (!d.active) return;
     const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
     if (!d.dragging) {
       if (Math.abs(dx) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) { d.active = false; return; }
       d.dragging = true;
       pausedRef.current = true;
       userInteracting.current = true;
       try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
     }
+    e.preventDefault();
     offsetRef.current = d.startOffset + dx;
     const track = trackRef.current;
     if (track) track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
@@ -491,7 +494,7 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
   const rafRef = useRef(0);
-  const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
+  const dragRef = useRef({ active: false, dragging: false, startX: 0, startY: 0, startOffset: 0 });
   const velocityRef = useRef(0);
   const lastXRef = useRef(0);
   const lastTimeRef = useRef(0);
@@ -540,7 +543,7 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
     cancelAnimationFrame(momentumRaf.current);
     momentumRef.current = false;
     velocityRef.current = 0;
-    dragRef.current = { active: true, dragging: false, startX: e.clientX, startOffset: offsetRef.current };
+    dragRef.current = { active: true, dragging: false, startX: e.clientX, startY: e.clientY, startOffset: offsetRef.current };
     lastXRef.current = e.clientX;
     lastTimeRef.current = Date.now();
   };
@@ -549,11 +552,14 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
     const d = dragRef.current;
     if (!d.active) return;
     const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
     if (!d.dragging) {
       if (Math.abs(dx) < 4) return;
+      if (Math.abs(dy) > Math.abs(dx)) { d.active = false; return; }
       d.dragging = true;
       try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
     }
+    e.preventDefault();
     const now = Date.now();
     const dt = now - lastTimeRef.current;
     if (dt > 0) {
