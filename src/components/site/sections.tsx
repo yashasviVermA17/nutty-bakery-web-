@@ -204,20 +204,36 @@ export function Categories() {
   const pausedRef = useRef(false);
   const offsetRef = useRef(0);
   const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
+  const hoverDirRef = useRef<"left" | "right" | null>(null);
+  const [hovered, setHovered] = useState(false);
   const speed = 0.55;
+  const hoverSpeed = 3;
 
   const tick = useCallback(() => {
-    if (!pausedRef.current && !dragRef.current.active) {
+    if (!dragRef.current.active) {
       const track = trackRef.current;
       if (track) {
         const half = track.scrollWidth / 2;
-        offsetRef.current -= speed;
-        if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
-        track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+        let moved = false;
+        if (hoverDirRef.current === "right") {
+          offsetRef.current -= hoverSpeed;
+          moved = true;
+        } else if (hoverDirRef.current === "left") {
+          offsetRef.current += hoverSpeed;
+          moved = true;
+        } else if (!pausedRef.current) {
+          offsetRef.current -= speed;
+          moved = true;
+        }
+        if (moved) {
+          if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
+          if (offsetRef.current > 0) offsetRef.current -= half;
+          track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+        }
       }
     }
     rafRef.current = requestAnimationFrame(tick);
-  }, [speed]);
+  }, [speed, hoverSpeed]);
 
   useEffect(() => {
     rafRef.current = requestAnimationFrame(tick);
@@ -256,7 +272,7 @@ export function Categories() {
   };
 
   return (
-    <section id="categories" className="relative overflow-hidden px-0 py-24 md:py-32">
+    <section id="categories" className="relative overflow-x-clip px-0 py-24 md:py-32">
       <div className="px-6 md:px-12">
         <Reveal>
           <Eyebrow>Browse the counter</Eyebrow>
@@ -269,14 +285,55 @@ export function Categories() {
 
       <div
         ref={containerRef}
-        className="mt-12 cursor-grab overflow-hidden active:cursor-grabbing touch-pan-y"
+        className="group/row mt-12 cursor-grab overflow-hidden active:cursor-grabbing touch-pan-y"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        onMouseEnter={() => { if (!dragRef.current.active) pausedRef.current = true; }}
-        onMouseLeave={() => { if (!dragRef.current.active) pausedRef.current = false; }}
+        onMouseEnter={() => { setHovered(true); if (!dragRef.current.active) pausedRef.current = true; }}
+        onMouseLeave={() => { setHovered(false); hoverDirRef.current = null; if (!dragRef.current.active) pausedRef.current = false; }}
       >
+        <button
+          type="button"
+          aria-label="Scroll left"
+          onClick={() => {
+            if (!trackRef.current) return;
+            const half = trackRef.current.scrollWidth / 2;
+            offsetRef.current += 320;
+            if (offsetRef.current > 0) offsetRef.current -= half;
+            trackRef.current.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+          }}
+          className="absolute left-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+
+        <button
+          type="button"
+          aria-label="Scroll right"
+          onClick={() => {
+            if (!trackRef.current) return;
+            const half = trackRef.current.scrollWidth / 2;
+            offsetRef.current -= 320;
+            if (Math.abs(offsetRef.current) >= half) offsetRef.current += half;
+            trackRef.current.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+          }}
+          className="absolute right-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+
+        <div
+          className="absolute left-0 top-0 z-[5] h-full w-1/5 cursor-w-resize"
+          onMouseEnter={() => { hoverDirRef.current = "left"; }}
+          onMouseLeave={() => { hoverDirRef.current = null; }}
+        />
+        <div
+          className="absolute right-0 top-0 z-[5] h-full w-1/5 cursor-e-resize"
+          onMouseEnter={() => { hoverDirRef.current = "right"; }}
+          onMouseLeave={() => { hoverDirRef.current = null; }}
+        />
+
         <div ref={trackRef} className="flex w-max gap-6">
           {[...cakeItems, ...cakeItems].map((c, i) => (
             <CategoryTile key={`${c.slug}-${i}`} c={c} offset={i} />
@@ -300,6 +357,12 @@ const signatureSlugs = [
   "blueberry-cheesecake",
   "classic-vanilla-dream",
   "choco-drip-cake",
+  "kitkat-cake",
+  "pineapple-cake",
+  "strawberry-cake",
+  "nutella-brownie",
+  "baked-nutella-cheesecake-slice",
+  "biscoff-kunafa",
 ];
 
 const signatureItems: Product[] = signatureSlugs
@@ -423,75 +486,57 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
 
 /* ------------------------ SIGNATURE MENU CAROUSEL ------------------------ */
 
-function MarqueeRow({
-  items,
-  direction,
-  speed,
-  onQuickView,
-  children,
-}: {
-  items: Product[];
-  direction: "left" | "right";
-  speed: number;
-  onQuickView: (p: Product) => void;
-  children?: React.ReactNode;
-}) {
-  const [paused, setPaused] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
-  const rafRef = useRef<number>(0);
-
-  const tick = useCallback(() => {
-    if (!paused) {
-      const track = trackRef.current;
-      if (track) {
-        const half = track.scrollWidth / 2;
-        const dir = direction === "left" ? -1 : 1;
-        offsetRef.current += dir * speed;
-        if (direction === "left" && Math.abs(offsetRef.current) >= half) offsetRef.current += half;
-        if (direction === "right" && offsetRef.current >= half) offsetRef.current -= half;
-        track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
-      }
-    }
-    rafRef.current = requestAnimationFrame(tick);
-  }, [paused, direction, speed]);
-
-  useEffect(() => {
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [tick]);
-
-  const doubled = [...items, ...items];
-
-  return (
-    <div
-      className="overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setTimeout(() => setPaused(false), 800)}
-    >
-      <div ref={trackRef} className="flex w-max gap-8">
-        {doubled.map((p, i) => (
-          <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
-            <ProductCard p={p} i={i} onQuickView={onQuickView} />
-          </div>
-        ))}
-        {children}
-      </div>
-    </div>
-  );
-}
-
 function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
-  const row1 = signatureItems.slice(0, 5);
-  const row2 = signatureItems.slice(5);
+  const allItems = signatureItems;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = 320;
+    scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 50) {
+      scroll(diff > 0 ? "right" : "left");
+    }
+  };
 
   return (
     <div className="py-24 md:py-32">
-      <div className="space-y-8">
-        <MarqueeRow items={row1} direction="left" speed={0.55} onQuickView={onQuickView} />
-        <MarqueeRow items={row2} direction="right" speed={0.55} onQuickView={onQuickView}>
+      <div className="relative group/row">
+        <button
+          type="button"
+          aria-label="Scroll left"
+          onClick={() => scroll("left")}
+          className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div
+          ref={scrollRef}
+          className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {allItems.map((p, i) => (
+            <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+              <ProductCard p={p} i={i} onQuickView={onQuickView} />
+            </div>
+          ))}
           <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
             <Link
               to="/menu"
@@ -510,7 +555,15 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
               </span>
             </Link>
           </div>
-        </MarqueeRow>
+        </div>
+        <button
+          type="button"
+          aria-label="Scroll right"
+          onClick={() => scroll("right")}
+          className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-primary/20 bg-background/90 text-primary opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 group-hover/row:opacity-100 hover:bg-primary hover:text-primary-foreground"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
       </div>
     </div>
   );
@@ -720,22 +773,21 @@ export function Gallery() {
         <div className="mt-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
           {customCakeGallery.map((g, i) => (
             <Reveal key={g.alt} delay={(i % 3) * 0.06}>
-              <button
-                type="button"
-                onClick={() => setOpen(i)}
-                className="group relative block w-full overflow-hidden rounded-[1.8rem] shadow-soft"
-              >
+              <div className="group relative block w-full overflow-hidden rounded-[1.8rem] shadow-soft">
                 <img
                   src={g.src}
                   alt={g.alt}
                   loading="lazy"
-                  className="aspect-[4/5] w-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
+                  className="aspect-[4/5] w-full object-cover"
                 />
-                <span className="absolute inset-0 glass opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                <span className="absolute bottom-4 left-4 text-left font-display text-sm text-primary opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => setOpen(i)}
+                  className="absolute bottom-4 left-4 text-left font-display text-sm text-primary opacity-0 transition-opacity duration-300 hover:text-gold hover:underline group-hover:opacity-100"
+                >
                   View
-                </span>
-              </button>
+                </button>
+              </div>
             </Reveal>
           ))}
         </div>
