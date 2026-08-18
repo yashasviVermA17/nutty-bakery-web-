@@ -6,7 +6,6 @@ import {
   Star,
   Heart,
   Eye,
-
   Clock,
   MapPin,
   Phone,
@@ -205,7 +204,6 @@ export function Categories() {
   const pausedRef = useRef(false);
   const offsetRef = useRef(0);
   const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
-  const wheelCooldownRef = useRef(0);
   const speed = 0.55;
 
   const tick = useCallback(() => {
@@ -225,38 +223,6 @@ export function Categories() {
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
   }, [tick]);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-
-    const onWheel = (e: WheelEvent) => {
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if (Math.abs(delta) < 4) return;
-
-      const now = Date.now();
-      if (now < wheelCooldownRef.current) {
-        e.preventDefault();
-        return;
-      }
-
-      pausedRef.current = true;
-      offsetRef.current -= delta;
-      const track = trackRef.current;
-      if (track) track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
-
-      wheelCooldownRef.current = now + 60;
-      e.preventDefault();
-
-      clearTimeout((el as any).__whlTimer);
-      (el as any).__whlTimer = setTimeout(() => {
-        if (!dragRef.current.active) pausedRef.current = false;
-      }, 800);
-    };
-
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -455,6 +421,101 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
   );
 }
 
+/* ------------------------ SIGNATURE MENU CAROUSEL ------------------------ */
+
+function MarqueeRow({
+  items,
+  direction,
+  speed,
+  onQuickView,
+  children,
+}: {
+  items: Product[];
+  direction: "left" | "right";
+  speed: number;
+  onQuickView: (p: Product) => void;
+  children?: React.ReactNode;
+}) {
+  const [paused, setPaused] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const rafRef = useRef<number>(0);
+
+  const tick = useCallback(() => {
+    if (!paused) {
+      const track = trackRef.current;
+      if (track) {
+        const half = track.scrollWidth / 2;
+        const dir = direction === "left" ? -1 : 1;
+        offsetRef.current += dir * speed;
+        if (direction === "left" && Math.abs(offsetRef.current) >= half) offsetRef.current += half;
+        if (direction === "right" && offsetRef.current >= half) offsetRef.current -= half;
+        track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  }, [paused, direction, speed]);
+
+  useEffect(() => {
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [tick]);
+
+  const doubled = [...items, ...items];
+
+  return (
+    <div
+      className="overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setTimeout(() => setPaused(false), 800)}
+    >
+      <div ref={trackRef} className="flex w-max gap-8">
+        {doubled.map((p, i) => (
+          <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+            <ProductCard p={p} i={i} onQuickView={onQuickView} />
+          </div>
+        ))}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
+  const row1 = signatureItems.slice(0, 5);
+  const row2 = signatureItems.slice(5);
+
+  return (
+    <div className="py-24 md:py-32">
+      <div className="space-y-8">
+        <MarqueeRow items={row1} direction="left" speed={0.55} onQuickView={onQuickView} />
+        <MarqueeRow items={row2} direction="right" speed={0.55} onQuickView={onQuickView}>
+          <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+            <Link
+              to="/menu"
+              search={{ category: "all" }}
+              className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 rounded-[2rem] border border-dashed border-primary/20 bg-gradient-to-br from-primary/[0.06] via-transparent to-gold/10 p-8 text-center transition-all duration-500 hover:border-primary/40 hover:shadow-gold"
+            >
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-gold transition-transform duration-500 hover:scale-110">
+                <Cake className="h-7 w-7" />
+              </span>
+              <span className="font-display text-2xl text-primary">Go to Menu</span>
+              <span className="text-sm leading-relaxed text-muted-foreground">
+                Explore all our signatures,<br />cakes & more
+              </span>
+              <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:scale-105">
+                View Full Menu
+              </span>
+            </Link>
+          </div>
+        </MarqueeRow>
+      </div>
+    </div>
+  );
+}
+
 export function Menu() {
   const [quick, setQuick] = useState<Product | null>(null);
 
@@ -491,13 +552,7 @@ export function Menu() {
         </div>
       </div>
 
-      <div className="px-6 py-24 md:px-12 md:py-32">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {signatureItems.map((p, i) => (
-            <ProductCard key={p.name} p={p} i={i} onQuickView={setQuick} />
-          ))}
-        </div>
-      </div>
+      <MenuCarousel onQuickView={setQuick} />
 
       <AnimatePresence>
         {quick && (

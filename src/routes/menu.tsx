@@ -15,7 +15,6 @@ import {
   type MenuItem,
 } from "@/lib/menu-data";
 import { useCart } from "@/lib/cart";
-import { Hero } from "../components/site/sections";
 import { Eyebrow, MaskedHeading, Reveal } from "../components/site/ui-bits";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -113,8 +112,7 @@ function MenuPage() {
 
   return (
     <>
-      <Hero />
-      <section className="px-6 pb-24 pt-36 md:px-12">
+      <section className="px-6 pb-24 pt-16 md:px-12">
         <Reveal>
           <Eyebrow>All Products</Eyebrow>
         </Reveal>

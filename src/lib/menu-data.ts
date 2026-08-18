@@ -21,10 +21,9 @@ import cake from "@/assets/products/cake.webp";
 import cake6b from "@/assets/products/cake6.webp";
 import cakeke from "@/assets/products/cakeke.webp";
 import assortedCake from "@/assets/products/multiple type of cake.webp";
-import cakeBite from "@/assets/products/cake bite 1.webp";
-import cookiesImg from "@/assets/p-cookies.jpg";
-import cookie2 from "@/assets/cookie bowl .jpeg";
-import cupcake from "@/assets/p-cupcake.jpg";
+import cookiesImg from "@/assets/cookie bowl .jpeg";
+import cookie2 from "@/assets/small cookkie .jpeg";
+import cupcake from "@/assets/cup cske 1.jpeg";
 import coldCoffee from "@/assets/products/desi cold coffee.webp";
 import drink from "@/assets/products/drink.webp";
 import mangoTrifle from "@/assets/products/mongo vanulla trifle dessert bowl.webp";
@@ -47,7 +46,6 @@ import frozenNutella from "@/assets/Frozen Cheesecake Slices Nutella.jpg";
 import gulkandImg from "@/assets/Gulkand Cak.jpg";
 import kitkatCake from "@/assets/Kitkat Cake —.jpg";
 import mangoCheesecake from "@/assets/Mango Cheesecake Slices.jpg";
-import mangoKunafaBowl from "@/assets/mongo tub cake .jpeg";
 import mangoTub from "@/assets/mongo tub cake .jpeg";
 import mangoPudding from "@/assets/mongo pudding .jpeg";
 import mangoShake from "@/assets/Mango Shake drink.jpg";
@@ -73,11 +71,10 @@ import chocolateKunafa from "@/assets/products/Kunafa Chocolate.webp";
 import nutellaKunafa from "@/assets/products/Kunafa Nutella.jpg";
 import pistaBrownie from "@/assets/products/Kunafa Pista Brownie.jpg";
 import classicKunafa from "@/assets/products/Kunafa-3 clasic.webp";
-import nutellaBrownie from "@/assets/Special Brownie with Triple Chocolate Bowl.jpg";
 import nutellaKunafaBrownie from "@/assets/Special Brownie Kunafa with Hezelnut Bowl.jpg";
 import sizzlerBrownie from "@/assets/Special Sizzler Brownie Scoop.jpg";
 import strawberryKunafa from "@/assets/products/StrawberryKunafa.jpg";
-import tripleBrownieBowl from "@/assets/products/Triple Chocolate Brownie Bowl —.jpg";
+import tripleBrownieBowl from "@/assets/Special Brownie with Triple Chocolate Bowl.jpg";
 import heroCake from "@/assets/hero-cake.jpg";
 
 
@@ -789,24 +786,6 @@ export const menuItems: MenuItem[] = [
   },
   {
     ...base,
-    slug: "mini-cake-bites",
-    name: "Mini Cake Bites",
-    category: "Cupcakes",
-    categorySlug: "cupcakes",
-    note: "Bite-sized bakes with silky cream tops",
-    image: cakeBite,
-    price: 299,
-    mrp: 349,
-    rating: 4.7,
-    reviews: 84,
-    flavours: ["Vanilla", "Chocolate"],
-    weights: ["Pack of 6"],
-    occasions: ["Birthday", "Kids", "Celebration"],
-    badges: ["New", "Fresh Daily"],
-    newArrival: true,
-  },
-  {
-    ...base,
     slug: "salted-caramel-cookie",
     name: "Salted Caramel Cookie",
     category: "Cookies",
@@ -1189,24 +1168,6 @@ export const menuItems: MenuItem[] = [
   },
   {
     ...base,
-    slug: "mango-kunafa-bowl",
-    name: "Mango Kunafa Bowl",
-    category: "Mango Desserts",
-    categorySlug: "mango-desserts",
-    note: "Kunafa bowl loaded with mango and cream",
-    image: mangoKunafaBowl,
-    price: 199,
-    mrp: 199,
-    rating: 4.9,
-    reviews: 54,
-    eggless: true,
-    flavours: ["Fruit"],
-    weights: ["Pack of 1"],
-    occasions: ["Birthday", "Celebration"],
-    badges: ["Special"],
-  },
-  {
-    ...base,
     slug: "mango-shake",
     name: "Mango Shake",
     category: "Beverages",
@@ -1396,24 +1357,6 @@ export const menuItems: MenuItem[] = [
     weights: ["1 Piece"],
     occasions: ["Birthday", "Celebration"],
     badges: ["Premium"],
-  },
-  {
-    ...base,
-    slug: "nutella-brownie",
-    name: "Nutella Brownie",
-    category: "Brownies",
-    categorySlug: "brownies",
-    note: "Brownie crowned with a Nutella swirl",
-    image: nutellaBrownie,
-    price: 150,
-    mrp: 150,
-    rating: 4.9,
-    reviews: 92,
-    flavours: ["Chocolate"],
-    weights: ["1 Piece"],
-    occasions: ["Birthday", "Kids", "Celebration"],
-    badges: ["Premium", "Best Seller"],
-    bestSeller: true,
   },
   {
     ...base,
