@@ -410,9 +410,9 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
         animate={{ rotateX: tilt.rx, rotateY: tilt.ry }}
         transition={{ type: "spring", stiffness: 180, damping: 18 }}
         style={{ transformStyle: "preserve-3d", perspective: 900 }}
-        className="glass group relative overflow-hidden rounded-[2rem] p-4 transition-shadow duration-500 hover:shadow-gold"
+        className="glass group relative flex h-[26rem] w-full flex-col overflow-hidden rounded-[2rem] p-4 transition-shadow duration-500 hover:shadow-gold"
       >
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-cream via-peach to-cream">
+        <div className="relative aspect-[4/3] w-full flex-shrink-0 overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-cream via-peach to-cream">
           <Link
             to="/menu"
             search={{ category: p.categorySlug ?? slugify(p.category) }}
@@ -462,13 +462,13 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
           </div>
         </div>
 
-        <div className="px-2 pb-1 pt-5">
+        <div className="flex flex-1 flex-col px-2 pb-1 pt-5">
           <span className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">
             {p.category}
           </span>
           <h3 className="mt-2 font-display text-xl text-primary">{p.name}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.note}</p>
-          <div className="mt-5 flex items-center justify-between">
+          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{p.note}</p>
+          <div className="mt-auto flex items-center justify-between pt-5">
             <span className="font-display text-lg text-primary">{p.price}</span>
             <a
               href="#contact"
