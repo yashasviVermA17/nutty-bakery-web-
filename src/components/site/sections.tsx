@@ -487,29 +487,35 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
 
 function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
   const allItems = signatureItems;
+  const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
-  const scroll = (dir: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = 320;
-    scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    isDragging.current = true;
+    startX.current = e.clientX;
+    scrollLeft.current = el.scrollLeft;
+    try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const dx = e.clientX - startX.current;
+    el.scrollLeft = scrollLeft.current - dx;
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > 50) {
-      scroll(diff > 0 ? "right" : "left");
-    }
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    try { containerRef.current?.releasePointerCapture(e.pointerId); } catch { /* */ }
   };
 
   const onWheel = useCallback((e: React.WheelEvent) => {
@@ -523,36 +529,42 @@ function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
   return (
     <div className="py-24 md:py-32">
       <div
-        ref={scrollRef}
-        className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onWheel={onWheel}
+        ref={containerRef}
+        className="cursor-grab active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        {allItems.map((p, i) => (
-          <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
-            <ProductCard p={p} i={i} onQuickView={onQuickView} />
+        <div
+          ref={scrollRef}
+          className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onWheel={onWheel}
+        >
+          {allItems.map((p, i) => (
+            <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+              <ProductCard p={p} i={i} onQuickView={onQuickView} />
+            </div>
+          ))}
+          <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
+            <Link
+              to="/menu"
+              search={{ category: "all" }}
+              className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 rounded-[2rem] border border-dashed border-primary/20 bg-gradient-to-br from-primary/[0.06] via-transparent to-gold/10 p-8 text-center transition-all duration-500 hover:border-primary/40 hover:shadow-gold"
+            >
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-gold transition-transform duration-500 hover:scale-110">
+                <Cake className="h-7 w-7" />
+              </span>
+              <span className="font-display text-2xl text-primary">Go to Menu</span>
+              <span className="text-sm leading-relaxed text-muted-foreground">
+                Explore all our signatures,<br />cakes & more
+              </span>
+              <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:scale-105">
+                View Full Menu
+              </span>
+            </Link>
           </div>
-        ))}
-        <div className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
-          <Link
-            to="/menu"
-            search={{ category: "all" }}
-            className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 rounded-[2rem] border border-dashed border-primary/20 bg-gradient-to-br from-primary/[0.06] via-transparent to-gold/10 p-8 text-center transition-all duration-500 hover:border-primary/40 hover:shadow-gold"
-          >
-            <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-gold transition-transform duration-500 hover:scale-110">
-              <Cake className="h-7 w-7" />
-            </span>
-            <span className="font-display text-2xl text-primary">Go to Menu</span>
-            <span className="text-sm leading-relaxed text-muted-foreground">
-              Explore all our signatures,<br />cakes & more
-            </span>
-            <span className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:scale-105">
-              View Full Menu
-            </span>
-          </Link>
         </div>
       </div>
     </div>
