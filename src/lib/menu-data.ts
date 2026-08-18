@@ -29,7 +29,6 @@ import coldCoffee from "@/assets/products/desi cold coffee.webp";
 import drink from "@/assets/products/drink.webp";
 import mangoTrifle from "@/assets/products/mongo vanulla trifle dessert bowl.webp";
 import kunafa from "@/assets/products/traditional kunafa.webp";
-import brownie from "@/assets/p-brownies.jpg";
 import bakedBlueberry from "@/assets/Baked Cheesecake Slices Blueberry.jpg";
 import biscoffCheesecake from "@/assets/BiscoffCheesecake Slices.jpg";
 import blackForest from "@/assets/Black Forest Cake —.jpg";
@@ -1371,26 +1370,9 @@ export const menuItems: MenuItem[] = [
     category: "Brownies",
     categorySlug: "brownies",
     note: "Sizzling hot brownie with warm chocolate",
-    image: brownie,
+    image: sizzlerBrownie,
     price: 150,
     mrp: 150,
-    rating: 4.9,
-    reviews: 88,
-    flavours: ["Chocolate"],
-    weights: ["1 Piece"],
-    occasions: ["Birthday", "Celebration"],
-    badges: ["Premium", "Trending"],
-  },
-  {
-    ...base,
-    slug: "sizzler-brownie-ice-cream",
-    name: "Sizzler Brownie with Ice Cream",
-    category: "Brownies",
-    categorySlug: "brownies",
-    note: "Sizzler brownie served with a scoop of ice cream",
-    image: sizzlerBrownie,
-    price: 180,
-    mrp: 180,
     rating: 4.9,
     reviews: 74,
     flavours: ["Chocolate", "Vanilla"],
