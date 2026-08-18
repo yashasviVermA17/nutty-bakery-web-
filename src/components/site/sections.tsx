@@ -488,60 +488,126 @@ function ProductCard({ p, onQuickView, i }: { p: Product; onQuickView: (p: Produ
 function MenuCarousel({ onQuickView }: { onQuickView: (p: Product) => void }) {
   const allItems = signatureItems;
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const rafRef = useRef(0);
+  const dragRef = useRef({ active: false, dragging: false, startX: 0, startOffset: 0 });
+  const velocityRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const momentumRef = useRef(false);
+  const momentumRaf = useRef(0);
+
+  useEffect(() => {
+    const tick = () => {
+      if (!dragRef.current.active && !momentumRef.current) {
+        const track = trackRef.current;
+        if (track) {
+          const maxScroll = -(track.scrollWidth - containerRef.current!.clientWidth);
+          offsetRef.current = Math.max(maxScroll, Math.min(0, offsetRef.current));
+          track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const startMomentum = () => {
+    momentumRef.current = true;
+    const decay = () => {
+      velocityRef.current *= 0.95;
+      if (Math.abs(velocityRef.current) < 0.5) {
+        momentumRef.current = false;
+        return;
+      }
+      offsetRef.current += velocityRef.current;
+      const track = trackRef.current;
+      if (track) {
+        const maxScroll = -(track.scrollWidth - containerRef.current!.clientWidth);
+        offsetRef.current = Math.max(maxScroll, Math.min(0, offsetRef.current));
+        track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+      }
+      momentumRaf.current = requestAnimationFrame(decay);
+    };
+    cancelAnimationFrame(momentumRaf.current);
+    momentumRaf.current = requestAnimationFrame(decay);
+  };
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    isDragging.current = true;
-    startX.current = e.clientX;
-    scrollLeft.current = el.scrollLeft;
-    try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
+    cancelAnimationFrame(momentumRaf.current);
+    momentumRef.current = false;
+    velocityRef.current = 0;
+    dragRef.current = { active: true, dragging: false, startX: e.clientX, startOffset: offsetRef.current };
+    lastXRef.current = e.clientX;
+    lastTimeRef.current = Date.now();
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    e.preventDefault();
-    const dx = e.clientX - startX.current;
-    el.scrollLeft = scrollLeft.current - dx;
+    const d = dragRef.current;
+    if (!d.active) return;
+    const dx = e.clientX - d.startX;
+    if (!d.dragging) {
+      if (Math.abs(dx) < 4) return;
+      d.dragging = true;
+      try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* */ }
+    }
+    const now = Date.now();
+    const dt = now - lastTimeRef.current;
+    if (dt > 0) {
+      velocityRef.current = (e.clientX - lastXRef.current) / dt * 16;
+    }
+    lastXRef.current = e.clientX;
+    lastTimeRef.current = now;
+
+    offsetRef.current = d.startOffset + dx;
+    const track = trackRef.current;
+    if (track) {
+      const maxScroll = -(track.scrollWidth - containerRef.current!.clientWidth);
+      offsetRef.current = Math.max(maxScroll - 80, Math.min(80, offsetRef.current));
+      track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+    }
   };
 
   const onPointerUp = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
+    const d = dragRef.current;
+    if (!d.active) return;
+    d.active = false;
     try { containerRef.current?.releasePointerCapture(e.pointerId); } catch { /* */ }
+    if (d.dragging) {
+      d.dragging = false;
+      startMomentum();
+    }
   };
 
   const onWheel = useCallback((e: React.WheelEvent) => {
     if (Math.abs(e.deltaY) < 2 && Math.abs(e.deltaX) < 2) return;
-    const el = scrollRef.current;
-    if (!el) return;
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    el.scrollBy({ left: delta, behavior: "auto" });
+    cancelAnimationFrame(momentumRaf.current);
+    momentumRef.current = false;
+    offsetRef.current -= delta * 1.5;
+    const track = trackRef.current;
+    if (track) {
+      const maxScroll = -(track.scrollWidth - containerRef.current!.clientWidth);
+      offsetRef.current = Math.max(maxScroll, Math.min(0, offsetRef.current));
+      track.style.transform = `translate3d(${offsetRef.current}px,0,0)`;
+    }
   }, []);
 
   return (
     <div className="py-24 md:py-32">
       <div
         ref={containerRef}
-        className="cursor-grab active:cursor-grabbing"
+        className="overflow-hidden cursor-grab active:cursor-grabbing"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onWheel={onWheel}
       >
-        <div
-          ref={scrollRef}
-          className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          onWheel={onWheel}
-        >
+        <div ref={trackRef} className="flex gap-8 w-max">
           {allItems.map((p, i) => (
             <div key={`${p.name}-${i}`} className="shrink-0 w-[16.5rem] sm:w-[17.5rem] md:w-[19rem]">
               <ProductCard p={p} i={i} onQuickView={onQuickView} />
