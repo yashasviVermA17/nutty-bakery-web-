@@ -54,9 +54,11 @@ import tresLechesRose from "@/assets/Tres Leches Cake Rose Per Slice).jpg";
 import tresLechesThandai from "@/assets/Tres Leches Cake Thandai Per Slice).jpg";
 import vanillaCake from "@/assets/vanilla cake.jpeg";
 import vanillaWhite from "@/assets/Vanilla Waffle With White Chocolate.jpg";
+import vanillaDark from "@/assets/With Dark Chocolate Vanilla Waffle.jpg";
 import vanillaKitkat from "@/assets/With KitKat Vanilla Waffle.jpg";
 import vanillaMilk from "@/assets/With Milk Chocolate.jpg";
 import vanillaTriple from "@/assets/With Triple Chocolate.jpg";
+import vanillaOreo from "@/assets/Vanilla Waffle  With Oreo —.jpg";
 import biscoffKunafa from "@/assets/products/Biscoff kunafa.jpg";
 import brownieBowl from "@/assets/Brownie Bowl — 1.jpg";
 import brownieChoc from "@/assets/Brownie with Milk Chocolate Bowl.jpg";
@@ -1152,7 +1154,7 @@ export const menuItems: MenuItem[] = [
     category: "Waffles",
     categorySlug: "waffles",
     note: "Vanilla waffle topped with dark chocolate · Add-ons: ice cream +₹39, extra chocolate +₹45",
-    image: vanillaKitkat,
+    image: vanillaDark,
     price: 100,
     mrp: 100,
     rating: 4.8,
@@ -1237,7 +1239,7 @@ export const menuItems: MenuItem[] = [
     category: "Waffles",
     categorySlug: "waffles",
     note: "Vanilla waffle topped with crushed Oreo · Add-ons: ice cream +₹39, extra chocolate +₹45",
-    image: vanillaWhite,
+    image: vanillaOreo,
     price: 149,
     mrp: 149,
     rating: 4.9,
