@@ -70,7 +70,7 @@ import classicKunafa from "@/assets/products/Kunafa-3 clasic.webp";
 import nutellaKunafaBrownie from "@/assets/Special Brownie Kunafa with Hezelnut Bowl.jpg";
 import sizzlerBrownie from "@/assets/Special Sizzler Brownie Scoop.jpg";
 import strawberryKunafa from "@/assets/products/StrawberryKunafa.jpg";
-import tripleBrownieBowl from "@/assets/Special Brownie with Triple Chocolate Bowl.jpg";
+import tripleBrownieBowl from "@/assets/triple chocalate brownie bowl 2.jpeg";
 import heroCake from "@/assets/hero-cake.jpg";
 
 
