@@ -8,7 +8,6 @@ import cake5 from "@/assets/products/cake 5.webp";
 import cake6 from "@/assets/products/cake 6.webp";
 import cake8 from "@/assets/products/cake 8.webp";
 import cake9 from "@/assets/products/cake9.webp";
-import cake10 from "@/assets/products/cake 10.jpg";
 import cake11 from "@/assets/products/cake 11.webp";
 import cake12 from "@/assets/products/cake 12.webp";
 import cake13 from "@/assets/products/cake 13.webp";
@@ -54,7 +53,7 @@ import tresLechesRose from "@/assets/Tres Leches Cake Rose Per Slice).jpg";
 import tresLechesThandai from "@/assets/Tres Leches Cake Thandai Per Slice).jpg";
 import vanillaCake from "@/assets/vanilla cake.jpeg";
 import vanillaWhite from "@/assets/Vanilla Waffle With White Chocolate.jpg";
-import vanillaDark from "@/assets/With Dark Chocolate Vanilla Waffle.jpg";
+import vanillaDark from "@/assets/Vanilla Waffle with Dark Chocolate 2.jpeg";
 import vanillaKitkat from "@/assets/With KitKat Vanilla Waffle.jpg";
 import vanillaMilk from "@/assets/With Milk Chocolate.jpg";
 import vanillaTriple from "@/assets/With Triple Chocolate.jpg";
@@ -413,7 +412,7 @@ export const menuItems: MenuItem[] = [
     category: "Cakes",
     categorySlug: "cakes",
     note: "Feather-light sponge with silk icing",
-    image: cake10,
+    image: cake11,
     price: 799,
     mrp: 999,
     rating: 4.7,
