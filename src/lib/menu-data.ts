@@ -20,7 +20,6 @@ import cake23 from "@/assets/products/cake 23.webp";
 import cake from "@/assets/products/cake.webp";
 import cake6b from "@/assets/products/cake6.webp";
 import cakeke from "@/assets/products/cakeke.webp";
-import assortedCake from "@/assets/products/multiple type of cake.webp";
 import cookiesImg from "@/assets/cookie bowl .jpeg";
 import cookie2 from "@/assets/small cookkie .jpeg";
 import cupcake from "@/assets/cup cske 1.jpeg";
@@ -622,24 +621,6 @@ export const menuItems: MenuItem[] = [
     weights: ["0.5 kg", "1 kg"],
     occasions: ["Birthday", "Celebration"],
     badges: ["Signature"],
-  },
-  {
-    ...base,
-    slug: "celebration-assortment",
-    name: "Custom Cake",
-    category: "Cakes",
-    categorySlug: "cakes",
-    note: "A platter of our finest designs to share",
-    image: assortedCake,
-    price: 1499,
-    mrp: 1899,
-    rating: 4.9,
-    reviews: 210,
-    flavours: ["Vanilla", "Chocolate", "Fruit"],
-    weights: ["2 kg"],
-    occasions: ["Birthday", "Celebration", "Wedding"],
-    badges: ["Best Seller", "Limited Edition"],
-    bestSeller: true,
   },
   {
     ...base,
