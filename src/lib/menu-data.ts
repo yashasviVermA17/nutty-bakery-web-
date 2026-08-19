@@ -12,8 +12,6 @@ import cake10 from "@/assets/products/cake 10.jpg";
 import cake11 from "@/assets/products/cake 11.webp";
 import cake12 from "@/assets/products/cake 12.webp";
 import cake13 from "@/assets/products/cake 13.webp";
-import cake15 from "@/assets/products/cake 15.webp";
-import cake16 from "@/assets/products/cake 16.webp";
 import cake18 from "@/assets/products/cake 18.webp";
 import cake21 from "@/assets/products/cake 21.webp";
 import cake23 from "@/assets/products/cake 23.webp";
@@ -33,7 +31,6 @@ import blackForest from "@/assets/Black Forest Cake —.jpg";
 import blueberryCake from "@/assets/Blueberry Cake —.jpg";
 import cadburyCake from "@/assets/Cadbury Cake —.jpg";
 import caramelBaked from "@/assets/Caramel Baked Cheesecake Slices.jpg";
-import casattaCake from "@/assets/Casatta Cake.jpg";
 import chocoTruffle from "@/assets/Chocolate Truffle Cake.jpg";
 import chocolavaImg from "@/assets/Chocolava —.jpeg";
 import ferreroCake from "@/assets/Ferrero Rocher Cake.jpg";
@@ -56,9 +53,7 @@ import tresLechesMango from "@/assets/Tres Leches Cake Alphonso Mango.jpg";
 import tresLechesRose from "@/assets/Tres Leches Cake Rose Per Slice).jpg";
 import tresLechesThandai from "@/assets/Tres Leches Cake Thandai Per Slice).jpg";
 import vanillaCake from "@/assets/vanilla cake.jpeg";
-import vanillaOreo from "@/assets/Vanilla Waffle  With Oreo —.jpg";
 import vanillaWhite from "@/assets/Vanilla Waffle With White Chocolate.jpg";
-import vanillaDark from "@/assets/With Dark Chocolate Vanilla Waffle.jpg";
 import vanillaKitkat from "@/assets/With KitKat Vanilla Waffle.jpg";
 import vanillaMilk from "@/assets/With Milk Chocolate.jpg";
 import vanillaTriple from "@/assets/With Triple Chocolate.jpg";
@@ -465,40 +460,6 @@ export const menuItems: MenuItem[] = [
   },
   {
     ...base,
-    slug: "swirl-dream-cake",
-    name: "Custom Cake",
-    category: "Cakes",
-    categorySlug: "cakes",
-    note: "Tall cream swirls, soft baked layers",
-    image: cake15,
-    price: 899,
-    mrp: 1099,
-    rating: 4.7,
-    reviews: 94,
-    flavours: ["Vanilla"],
-    weights: ["0.5 kg", "1 kg"],
-    occasions: ["Birthday", "Kids"],
-    badges: ["Fresh Today"],
-  },
-  {
-    ...base,
-    slug: "hazelnut-paradise-cake",
-    name: "Custom Cake",
-    category: "Cakes",
-    categorySlug: "cakes",
-    note: "Nutty crunch with a smooth choco glaze",
-    image: cake16,
-    price: 1049,
-    mrp: 1299,
-    rating: 4.8,
-    reviews: 118,
-    flavours: ["Chocolate"],
-    weights: ["0.5 kg", "1 kg"],
-    occasions: ["Birthday", "Celebration"],
-    badges: ["Trending"],
-  },
-  {
-    ...base,
     slug: "choco-nut-delight",
     name: "Custom Cake",
     category: "Cakes",
@@ -683,7 +644,7 @@ export const menuItems: MenuItem[] = [
     category: "Cakes",
     categorySlug: "cakes",
     note: "Classic layered casatta with fruity sponge",
-    image: casattaCake,
+    image: cake21,
     price: 500,
     mrp: 500,
     rating: 4.6,
@@ -1191,7 +1152,7 @@ export const menuItems: MenuItem[] = [
     category: "Waffles",
     categorySlug: "waffles",
     note: "Vanilla waffle topped with dark chocolate · Add-ons: ice cream +₹39, extra chocolate +₹45",
-    image: vanillaDark,
+    image: vanillaKitkat,
     price: 100,
     mrp: 100,
     rating: 4.8,
@@ -1276,7 +1237,7 @@ export const menuItems: MenuItem[] = [
     category: "Waffles",
     categorySlug: "waffles",
     note: "Vanilla waffle topped with crushed Oreo · Add-ons: ice cream +₹39, extra chocolate +₹45",
-    image: vanillaOreo,
+    image: vanillaWhite,
     price: 149,
     mrp: 149,
     rating: 4.9,

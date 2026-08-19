@@ -34,7 +34,6 @@ const sortOptions = [
 ];
 
 type Filters = {
-  egg: "all" | "eggless" | "with-egg";
   flavours: string[];
   weights: string[];
   occasions: string[];
@@ -43,7 +42,6 @@ type Filters = {
 };
 
 const initialFilters: Filters = {
-  egg: "all",
   flavours: [],
   weights: [],
   occasions: [],
@@ -64,7 +62,6 @@ function MenuPage() {
     filters.weights.length +
     filters.occasions.length +
     filters.quick.length +
-    (filters.egg !== "all" ? 1 : 0) +
     (filters.rating ? 1 : 0) +
     (priceMax < 2000 ? 1 : 0);
 
@@ -74,8 +71,6 @@ function MenuPage() {
     const list = menuItems.filter((m) => {
       if (activeCategory !== "all" && m.categorySlug !== activeCategory) return false;
       if (m.price > priceMax) return false;
-      if (filters.egg === "eggless" && !m.eggless) return false;
-      if (filters.egg === "with-egg" && m.eggless) return false;
       if (filters.flavours.length && !filters.flavours.some((f) => m.flavours.includes(f)))
         return false;
       if (filters.weights.length && !filters.weights.some((w) => m.weights.includes(w))) return false;
@@ -183,36 +178,6 @@ function MenuPage() {
                 <div className="mt-2 flex justify-between text-xs text-muted-foreground">
                   <span>{inr(200)}</span>
                   <span>{inr(2000)}</span>
-                </div>
-              </div>
-
-              {/* Egg / Eggless */}
-              <div className="mt-7">
-                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">
-                  Egg / Eggless
-                </p>
-                <div className="mt-3 flex gap-2">
-                  {(
-                    [
-                      ["all", "All"],
-                      ["eggless", "Eggless"],
-                      ["with-egg", "With egg"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setFilters((f) => ({ ...f, egg: value }))}
-                      className={cn(
-                        "rounded-full border px-3.5 py-1.5 text-xs transition-colors",
-                        filters.egg === value
-                          ? "border-gold bg-gold text-espresso"
-                          : "border-gold/25 text-primary hover:bg-accent",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
                 </div>
               </div>
 
@@ -481,11 +446,6 @@ function CatalogCard({ m, i }: { m: MenuItem; i: number }) {
               {" · "}
               {m.weights[0]}+
             </span>
-            {m.eggless && (
-              <span className="ml-auto rounded-full border border-gold/40 px-2 py-0.5 text-[0.58rem] uppercase tracking-widest text-gold">
-                Eggless
-              </span>
-            )}
           </div>
 
           <div className="mt-4 flex items-baseline gap-2">
