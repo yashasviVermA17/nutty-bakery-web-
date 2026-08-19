@@ -761,20 +761,20 @@ export function About() {
       <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-14 lg:grid-cols-[5fr_7fr]">
         <Reveal>
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-[2.5rem]">
             <img
               src={storefront}
               alt="Nutty Delight Bakery storefront lit up at night with outdoor seating"
               loading="lazy"
               width={1600}
               height={1200}
-              className="w-full rounded-[2.5rem] object-cover shadow-lift"
+              className="w-full object-cover shadow-lift"
             />
-            <div className="glass absolute -bottom-10 -right-4 flex items-center gap-4 rounded-[1.8rem] p-5 md:-right-10">
-              <Logo className="h-16 w-16 rounded-full" />
+            <div className="glass absolute bottom-4 left-4 flex items-center gap-4 rounded-[1.8rem] p-4 shadow-lift md:left-6 md:bottom-6 md:p-5">
+              <Logo className="h-14 w-14 rounded-full md:h-16 md:w-16" />
               <div>
-                <p className="font-display text-lg text-primary">By Vithika</p>
-                <p className="text-xs tracking-widest text-muted-foreground">HEAD PASTRY CHEF</p>
+                <p className="font-display text-base text-primary md:text-lg">By Vithika</p>
+                <p className="text-[0.65rem] tracking-widest text-muted-foreground md:text-xs">HEAD PASTRY CHEF</p>
               </div>
             </div>
             <Croissant className="absolute -left-6 top-10 h-10 w-10 animate-float-soft text-gold" />
